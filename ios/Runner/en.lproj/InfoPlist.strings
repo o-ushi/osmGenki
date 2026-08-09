@@ -1,0 +1,2 @@
+"NSMicrophoneUsageDescription" = "Records your speech so you can review it and convert it to diary text.";
+"NSSpeechRecognitionUsageDescription" = "Sends recorded speech to Apple's speech recognition service, which may process it in the cloud, to create a transcript for your voice diary.";

@@ -1,0 +1,2 @@
+"NSMicrophoneUsageDescription" = "Ghi lại lời nói để bạn nghe lại và chuyển thành văn bản cho nhật ký giọng nói.";
+"NSSpeechRecognitionUsageDescription" = "Gửi âm thanh đã ghi đến dịch vụ nhận dạng giọng nói của Apple (có thể xử lý trên đám mây) để tạo bản ghi văn bản cho nhật ký giọng nói.";

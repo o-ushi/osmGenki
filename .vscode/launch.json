@@ -1,0 +1,10 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "osm_genki",
+      "request": "launch",
+      "type": "dart"
+    }
+  ]
+}

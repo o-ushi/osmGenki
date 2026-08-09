@@ -1,0 +1,2 @@
+"NSMicrophoneUsageDescription" = "発話を録音し、聴き直しとボイス日記の文字起こしに使用します。";
+"NSSpeechRecognitionUsageDescription" = "ボイス日記の文字起こしを作成するため、録音音声をAppleの音声認識サービスへ送信します。音声はクラウドで処理される場合があります。";
