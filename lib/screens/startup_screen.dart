@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../l10n/app_strings.dart';
 import '../app_globals.dart';
 import '../widgets/language_flag_button.dart';
+import '../widgets/startup_bottom_bar.dart';
 
 /// インストール直後（および設定で有効なとき）に出す案内画面。
 /// 右上の国旗ボタンで表示言語を切り替えられる。
+/// 「次回から表示しない」と「はじめる」は osm日日是好日と同じく画面下に固定する。
 class StartupScreen extends StatefulWidget {
   const StartupScreen({super.key, required this.onContinue});
 
@@ -39,24 +42,27 @@ class _StartupScreenState extends State<StartupScreen> {
     final scene = appAppearance.sceneColor;
     final fg = appAppearance.foregroundOn(scene);
     final muted = appAppearance.mutedOn(scene);
-    final accent = appAppearance.accentColor;
-    final onAccent = appAppearance.foregroundOn(accent);
 
-    return Scaffold(
-      backgroundColor: scene,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      // 濃いシーン色の上ではステータスバーの文字を白にする。
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        backgroundColor: scene,
+        body: SafeArea(
           child: Column(
             children: [
-              Align(
+              const Align(
                 alignment: Alignment.topRight,
-                child: LanguageFlagButton(),
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(0, 4, 12, 0),
+                  child: LanguageFlagButton(),
+                ),
               ),
               Expanded(
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     return SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
                       child: ConstrainedBox(
                         constraints: BoxConstraints(
                           minHeight: constraints.maxHeight,
@@ -131,94 +137,20 @@ class _StartupScreenState extends State<StartupScreen> {
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: 36),
-                            InkWell(
-                              onTap: () => setState(
-                                () => _dontShowAgain = !_dontShowAgain,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 10,
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    SizedBox(
-                                      width: 24,
-                                      height: 24,
-                                      child: Checkbox(
-                                        value: _dontShowAgain,
-                                        onChanged: (value) {
-                                          setState(
-                                            () => _dontShowAgain =
-                                                value ?? false,
-                                          );
-                                        },
-                                        side: BorderSide(
-                                          color: fg,
-                                          width: 1.5,
-                                        ),
-                                        fillColor:
-                                            WidgetStateProperty.resolveWith((
-                                              states,
-                                            ) {
-                                              if (states.contains(
-                                                WidgetState.selected,
-                                              )) {
-                                                return accent;
-                                              }
-                                              return Colors.transparent;
-                                            }),
-                                        checkColor: onAccent,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Flexible(
-                                      child: Text(
-                                        '次回から表示しない'.tr(lang),
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          color: fg,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 28),
-                            SizedBox(
-                              width: double.infinity,
-                              child: FilledButton(
-                                onPressed: () =>
-                                    widget.onContinue(_dontShowAgain),
-                                style: FilledButton.styleFrom(
-                                  backgroundColor: accent,
-                                  foregroundColor: onAccent,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 16,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                  ),
-                                ),
-                                child: Text(
-                                  'はじめる'.tr(lang),
-                                  style: const TextStyle(
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                            ),
                           ],
                         ),
                       ),
                     );
                   },
                 ),
+              ),
+              // 説明を読まなくても始められるよう、osm日日是好日と同じく下部に固定する。
+              StartupBottomBar(
+                dontShowAgain: _dontShowAgain,
+                onDontShowAgainChanged: (v) =>
+                    setState(() => _dontShowAgain = v),
+                label: 'はじめる'.tr(lang),
+                onPressed: () => widget.onContinue(_dontShowAgain),
               ),
             ],
           ),

@@ -19,6 +19,14 @@ class LanguageFlagButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // const で置かれても言語変更で国旗が切り替わるよう、自分で設定を購読する。
+    return ListenableBuilder(
+      listenable: appSettings,
+      builder: (context, _) => _buildButton(context),
+    );
+  }
+
+  Widget _buildButton(BuildContext context) {
     return Tooltip(
       message: '言語'.tr(appSettings.language),
       child: InkWell(

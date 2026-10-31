@@ -92,6 +92,24 @@ abstract final class DiaryReviewStorage {
     changes.value++;
   }
 
+  /// iCloud同期用: ファイルの中身（JSON配列の文字列）をそのまま返す。無ければnull。
+  static Future<String?> readRawForSync() async {
+    final file = await _file();
+    if (!await file.exists()) return null;
+    return file.readAsString();
+  }
+
+  /// iCloud同期用: マージ済みの中身（JSON配列の文字列、nullなら空）で置き換える。
+  static Future<void> replaceRawForSync(String? json) async {
+    final content = json ?? '[]';
+    if (jsonDecode(content) is! List) {
+      throw const FormatException('review sync data is not a list');
+    }
+    final file = await _file();
+    await file.writeAsString(content, flush: true);
+    changes.value++;
+  }
+
   static Future<void> clearAll() async {
     final file = await _file();
     await file.writeAsString('[]');

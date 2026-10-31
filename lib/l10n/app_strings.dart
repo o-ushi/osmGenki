@@ -18,6 +18,30 @@ abstract final class AppStrings {
   };
 
   static const _ja = <String, String>{
+    'help.backup.title': '日記を書き出す・取り込む',
+    'help.backup.body':
+        '「…」→設定→データの「日記をエクスポート」で、日記と診断結果をファイルに書き出せます。'
+        '「日記をインポート」で取り込むと、今の記録に追加されます（同じ記録は重複しません）。',
+    'help.icloud.title': 'iCloudで同期する',
+    'help.icloud.body':
+        '「…」→設定→「iCloudで同期する」をオンにすると、同じApple IDのiPhoneどうしで'
+        '日記・診断結果と設定が自動で同期されます。両方のiPhoneで書いた日記はどちらも残ります。'
+        '表示言語・案内の表示・録音は端末ごとです。すぐ反映したいときは「今すぐ同期」を押してください。',
+    'iCloud同期_スイッチ説明': '日記と設定を同じApple IDのiPhoneどうしで同期します',
+    'iCloud同期_完了': 'iCloudと同期しました。もう一方のiPhoneに届くまで、少しかかることがあります',
+    'iCloud同期_失敗_短': 'iCloudと同期できませんでした',
+    'iCloud同期': 'iCloud同期',
+    'iCloudで同期する': 'iCloudで同期する',
+    'iCloud同期_説明':
+        '日記・診断結果と、週の開始・タイマー音・シェイクで話すの設定を、同じApple IDのiPhoneどうしで同期します。表示言語・案内の表示・音声送信の同意は端末ごとです。録音した音声は同期しません。',
+    'iCloud同期_未サインイン':
+        'iCloudにサインインしていないため同期できません。設定アプリでApple IDにサインインし、iCloudをオンにしてください。',
+    'iCloud同期_最終同期': '最終同期',
+    'iCloud同期_未同期': 'まだ同期していません',
+    'iCloud同期_今すぐ同期': '今すぐ同期',
+    'iCloud同期_同期中': '同期中…',
+    'iCloud同期_失敗': 'iCloudと同期できませんでした。しばらくしてから「今すぐ同期」をお試しください。',
+    'iCloud同期_容量超過': 'データ（%@ MB）がiCloud同期の上限（1 MB）を超えているため、送れませんでした。',
     '設定': '設定',
     'その他': 'その他',
     'リセット': 'リセット',
@@ -48,6 +72,17 @@ abstract final class AppStrings {
     'はじめる': 'はじめる',
     'スタートアップ画面': 'スタートアップ画面',
     'スタートアップ画面_説明': 'アプリ起動時に案内画面を表示します',
+    '使い方画面': '使い方画面',
+    '使い方画面_説明': 'AI診断（Chrome の AI モード）の使い方を表示します',
+    '使い方': '使い方',
+    '使い方_Chrome見出し': 'Chrome の AI モード（AI診断）',
+    '使い方_コピー本文':
+        'ChromeのAIモードで答えが出たら、画面の下のほうにあるコピーボタンをタップしてください。'
+        '下の画像の赤い矢印と TAP! が指している、左端の重なった2つの四角です。\n\n'
+        'このボタンを押さずにアプリへ戻ると、貼り付けできません。'
+        'コピーできたら、osmGenki？に戻ってペーストボタンを押してください。',
+    '使い方_コピー画像ラベル': 'Chrome AIモードのコピーボタン（赤い矢印と TAP!）',
+    'ホーム画面へ': 'ホーム画面へ',
     '操作': '操作',
     'シェイクで話す': 'シェイクで話す',
     'シェイクで話す_説明': '端末を振ると「話す」タブに切り替えます',
@@ -156,6 +191,8 @@ abstract final class AppStrings {
     '辛め': '辛め',
     'ヘルプ': 'ヘルプ',
     'バージョン %@ (%@)': 'バージョン %@ (%@)',
+    '操作マニュアル': '操作マニュアル',
+    '図解で画面ごとの使い方を見る': '図解で画面ごとの使い方を見る',
     'ヘルプ紹介文':
         '日本語の会話力（流暢さなど）を伸ばすアプリです。姉妹アプリosmWashabeが正解を求めずに'
         '45〜60秒話し切ることに重きを置いているのに対して、osmGenki？は'
@@ -222,7 +259,8 @@ abstract final class AppStrings {
     'インポート失敗_メッセージ': 'ファイルの読み込みに失敗しました: %@',
     'OK': 'OK',
     '初期化_説明': '端末内のすべてのデータ（日記・診断結果・録音・設定など）を削除し、初めてインストールした状態に戻します。',
-    '初期化_確認': '端末内のすべてのデータ（日記・診断結果・録音・設定など）を削除し、初めてインストールした状態に戻します。この操作は取り消せません。',
+    '初期化_確認':
+        '端末内のすべてのデータ（日記・診断結果・録音・設定など）を削除し、初めてインストールした状態に戻します。この操作は取り消せません。',
     '初期化しますか？': 'すべてのデータを初期化しますか？',
     '初期化しました': 'すべてのデータを初期化しました',
     'キャンセル': 'キャンセル',
@@ -305,8 +343,7 @@ abstract final class AppStrings {
         '録音した音声を、OSに搭載された音声認識サービスへ送信します。目的は発話の文字起こしです。初めて利用する前に同意を確認し、同意しない場合も音声認識を使わない機能は利用できます。Appleの規約・プライバシーポリシーが適用されます。',
     'Privacy_音声認識説明_Android':
         '録音した音声を、OSに搭載された音声認識サービス、もしくはVosk（端末内のオフラインモデル）へ送信します。目的は、発話の文字起こしです。初めて利用する前に同意を確認し、同意しない場合も音声認識を使わない機能は利用できます。',
-    'Privacy_設定への案内':
-        '表示言語やシェイクで話すなどの操作設定は、設定画面から変更できます。',
+    'Privacy_設定への案内': '表示言語やシェイクで話すなどの操作設定は、設定画面から変更できます。',
     'Privacy_Google説明':
         '発話解析または日記傾向の診断を実行するたびに、Google LLCへの送信内容と目的を表示して同意を確認します。拒否した場合はクリップボードへのコピーもブラウザ起動も行いません。',
     'Privacy_保存削除説明':
@@ -320,6 +357,33 @@ abstract final class AppStrings {
   };
 
   static const _en = <String, String>{
+    'help.backup.title': 'Export and import your diary',
+    'help.backup.body':
+        'Go to "…" → Settings → Data and tap "Export diary" to save your diary and review results to a file. '
+        '"Import diary" adds a file\'s records to your current ones (duplicates are skipped).',
+    'help.icloud.title': 'Sync with iCloud',
+    'help.icloud.body':
+        'Turn on "…" → Settings → "Sync with iCloud" to sync your diary, review results, and settings '
+        'automatically across iPhones with the same Apple ID. Entries written on either iPhone are kept. '
+        'Display language, onboarding screens, and recordings stay on each device. Tap "Sync now" to sync right away.',
+    'iCloud同期_スイッチ説明': 'Sync your diary and settings across your iPhones',
+    'iCloud同期_完了':
+        'Synced with iCloud. It may take a little while to reach your other iPhone',
+    'iCloud同期_失敗_短': 'Could not sync with iCloud',
+    'iCloud同期': 'iCloud sync',
+    'iCloudで同期する': 'Sync with iCloud',
+    'iCloud同期_説明':
+        'Syncs your diary, review results, and settings such as week start, timer sound, and shake to talk across iPhones signed in to the same Apple ID. Display language, onboarding screens, and voice-sending consent stay on each device. Recordings are not synced.',
+    'iCloud同期_未サインイン':
+        'You are not signed in to iCloud, so sync is unavailable. Sign in with your Apple ID in the Settings app and turn on iCloud.',
+    'iCloud同期_最終同期': 'Last synced',
+    'iCloud同期_未同期': 'Not synced yet',
+    'iCloud同期_今すぐ同期': 'Sync now',
+    'iCloud同期_同期中': 'Syncing…',
+    'iCloud同期_失敗':
+        'Could not sync with iCloud. Please try "Sync now" again later.',
+    'iCloud同期_容量超過':
+        'Your data (%@ MB) exceeds the iCloud sync limit (1 MB), so it was not sent.',
     '設定': 'Settings',
     'その他': 'More',
     'リセット': 'Reset',
@@ -329,35 +393,41 @@ abstract final class AppStrings {
         'to the start. This cannot be undone.',
     '言語': 'Language',
     'アプリの表示言語を変更できます。': 'You can change the app display language.',
-    'スタートアップ_説明':
-        'Put into words what you’re feeling\nand thinking right now.',
+    'スタートアップ_説明': 'Put into words what you’re feeling\nand thinking right now.',
     '起動_操作ヒント_前': 'Long-press the ',
     '起動_操作ヒント_後': ' button on any screen\nto see how to use it',
     'ヘルプ_録音_手順1': '1️⃣ Choose a recording duration',
     'ヘルプ_録音_手順2': '2️⃣ Tap the {{icon}} button to start recording',
     'ヘルプ_録音_手順3': '3️⃣ End the recording',
     'ヘルプ_録音_手順3a': '♾️ Tap the {{icon}} button again',
-    'ヘルプ_録音_手順3b':
-        '30/45/60 Stops automatically when the timer hits zero',
+    'ヘルプ_録音_手順3b': '30/45/60 Stops automatically when the timer hits zero',
     'ヘルプ_録音_手順4': '4️⃣ Tap the {{icon}} button for an AI check',
-    'ヘルプ_録音_手順5':
-        '5️⃣ Copy the result and paste it to save it in your diary',
+    'ヘルプ_録音_手順5': '5️⃣ Copy the result and paste it to save it in your diary',
     'ヘルプ_ダッシュボード_見出しグラフ': '<Graph>',
     'ヘルプ_ダッシュボード_グラフ1': 'Conversation skill and Genki score over time',
     'ヘルプ_ダッシュボード_グラフ2': 'Swipe to move',
     'ヘルプ_ダッシュボード_グラフ3': 'Pinch to zoom in/out',
     'ヘルプ_ダッシュボード_見出しカレンダー': '<Calendar>',
     'ヘルプ_ダッシュボード_カレンダー1': 'Tap a date to see that day’s record',
-    'ヘルプ_日記_手順1':
-        'Long-press the Genki score/conversation skill for details',
-    'ヘルプ_日記_手順2':
-        'Tap the {{icon}} button to have AI review your diary so far',
-    'ヘルプ_日記_手順3':
-        'Copy the result and paste it to save it as a diary review',
+    'ヘルプ_日記_手順1': 'Long-press the Genki score/conversation skill for details',
+    'ヘルプ_日記_手順2': 'Tap the {{icon}} button to have AI review your diary so far',
+    'ヘルプ_日記_手順3': 'Copy the result and paste it to save it as a diary review',
     '次回から表示しない': "Don't show again",
     'はじめる': 'Get started',
     'スタートアップ画面': 'Startup screen',
     'スタートアップ画面_説明': 'Show the welcome screen when the app launches',
+    '使い方画面': 'How-to screen',
+    '使い方画面_説明': 'Show how to use Chrome AI Mode (AI analysis)',
+    '使い方': 'How to use',
+    '使い方_Chrome見出し': 'Chrome AI Mode (AI analysis)',
+    '使い方_コピー本文':
+        'When Chrome’s AI Mode shows an answer, tap the Copy button near the '
+        'bottom of the screen — the leftmost icon of two overlapping squares, '
+        'marked TAP! with a red arrow.\n\n'
+        'If you skip this and return to the app, you won’t be able to paste. '
+        'After copying, come back to osmGenki？ and tap the Paste button.',
+    '使い方_コピー画像ラベル': 'Copy button in Chrome AI Mode (red arrow and TAP!)',
+    'ホーム画面へ': 'Go to Home',
     '操作': 'Controls',
     'シェイクで話す': 'Shake to talk',
     'シェイクで話す_説明': 'Shake the device to switch to the Talk tab',
@@ -474,6 +544,8 @@ abstract final class AppStrings {
     '辛め': 'Strict',
     'ヘルプ': 'Help',
     'バージョン %@ (%@)': 'Version %@ (%@)',
+    '操作マニュアル': 'User manual',
+    '図解で画面ごとの使い方を見る': 'Illustrated guide for each screen',
     'ヘルプ紹介文':
         'An app to help you build Japanese conversation skill (such as fluency). '
         'While its sister app osmWashabe focuses on speaking for 45-60 '
@@ -666,6 +738,33 @@ abstract final class AppStrings {
   };
 
   static const _vi = <String, String>{
+    'help.backup.title': 'Xuất và nhập nhật ký',
+    'help.backup.body':
+        'Vào "…" → Cài đặt → Dữ liệu và nhấn "Xuất nhật ký" để lưu nhật ký và kết quả nhận xét ra tệp. '
+        '"Nhập nhật ký" sẽ thêm các bản ghi trong tệp vào dữ liệu hiện tại (bản ghi trùng sẽ được bỏ qua).',
+    'help.icloud.title': 'Đồng bộ bằng iCloud',
+    'help.icloud.body':
+        'Bật "…" → Cài đặt → "Đồng bộ bằng iCloud" để nhật ký, kết quả nhận xét và cài đặt tự động đồng bộ '
+        'giữa các iPhone dùng cùng Apple ID. Nhật ký viết trên iPhone nào cũng đều được giữ lại. '
+        'Ngôn ngữ hiển thị, màn hình hướng dẫn và bản ghi âm được giữ riêng trên từng máy. Nhấn "Đồng bộ ngay" để đồng bộ ngay lập tức.',
+    'iCloud同期_スイッチ説明': 'Đồng bộ nhật ký và cài đặt giữa các iPhone của bạn',
+    'iCloud同期_完了':
+        'Đã đồng bộ với iCloud. Có thể mất một lúc để dữ liệu đến iPhone còn lại',
+    'iCloud同期_失敗_短': 'Không thể đồng bộ với iCloud',
+    'iCloud同期': 'Đồng bộ iCloud',
+    'iCloudで同期する': 'Đồng bộ bằng iCloud',
+    'iCloud同期_説明':
+        'Đồng bộ nhật ký, kết quả nhận xét và các cài đặt như ngày bắt đầu tuần, âm hẹn giờ, lắc để nói giữa các iPhone dùng cùng Apple ID. Ngôn ngữ hiển thị, màn hình hướng dẫn và sự đồng ý gửi giọng nói được giữ riêng trên từng thiết bị. Bản ghi âm không được đồng bộ.',
+    'iCloud同期_未サインイン':
+        'Bạn chưa đăng nhập iCloud nên không thể đồng bộ. Hãy đăng nhập Apple ID trong ứng dụng Cài đặt và bật iCloud.',
+    'iCloud同期_最終同期': 'Lần đồng bộ gần nhất',
+    'iCloud同期_未同期': 'Chưa đồng bộ',
+    'iCloud同期_今すぐ同期': 'Đồng bộ ngay',
+    'iCloud同期_同期中': 'Đang đồng bộ…',
+    'iCloud同期_失敗':
+        'Không thể đồng bộ với iCloud. Vui lòng thử lại "Đồng bộ ngay" sau ít phút.',
+    'iCloud同期_容量超過':
+        'Dữ liệu (%@ MB) vượt quá giới hạn đồng bộ iCloud (1 MB) nên chưa được gửi.',
     '設定': 'Cài đặt',
     'その他': 'Khác',
     'リセット': 'Đặt lại',
@@ -701,6 +800,18 @@ abstract final class AppStrings {
     'はじめる': 'Bắt đầu',
     'スタートアップ画面': 'Màn hình khởi động',
     'スタートアップ画面_説明': 'Hiện màn hình hướng dẫn khi mở ứng dụng',
+    '使い方画面': 'Màn hình cách dùng',
+    '使い方画面_説明': 'Hiện cách dùng AI Mode của Chrome (phân tích bằng AI)',
+    '使い方': 'Cách dùng',
+    '使い方_Chrome見出し': 'AI Mode của Chrome (phân tích bằng AI)',
+    '使い方_コピー本文':
+        'Khi AI Mode của Chrome hiện câu trả lời, hãy chạm nút Sao chép ở phía '
+        'dưới màn hình — biểu tượng ngoài cùng bên trái gồm hai hình vuông chồng '
+        'lên nhau, có mũi tên đỏ và chữ TAP!.\n\n'
+        'Nếu quay lại ứng dụng mà chưa chạm nút này, bạn sẽ không dán được. '
+        'Sau khi sao chép, hãy quay lại osmGenki？ và chạm nút Dán.',
+    '使い方_コピー画像ラベル': 'Nút sao chép trong Chrome AI Mode (mũi tên đỏ và TAP!)',
+    'ホーム画面へ': 'Về màn hình chính',
     '操作': 'Thao tác',
     'シェイクで話す': 'Lắc để nói',
     'シェイクで話す_説明': 'Lắc thiết bị để chuyển sang tab Nói',
@@ -816,6 +927,8 @@ abstract final class AppStrings {
     '辛め': 'Nghiêm khắc',
     'ヘルプ': 'Trợ giúp',
     'バージョン %@ (%@)': 'Phiên bản %@ (%@)',
+    '操作マニュアル': 'Hướng dẫn sử dụng',
+    '図解で画面ごとの使い方を見る': 'Xem cách dùng từng màn hình bằng hình',
     'ヘルプ紹介文':
         'Ứng dụng giúp cải thiện khả năng hội thoại tiếng Nhật (độ trôi chảy…). '
         'Trong khi ứng dụng chị em osmWashabe chú trọng việc nói liên tục '

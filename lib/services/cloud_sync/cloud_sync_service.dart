@@ -1,0 +1,658 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:clock/clock.dart';
+import 'package:flutter/widgets.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../app_preferences.dart';
+import 'icloud_bridge.dart';
+
+/// iCloud同期の状態（osmNichinichiの`CloudSyncStatus`と同じ）。
+enum CloudSyncStatus { idle, uploading, downloading, unavailable, error }
+
+/// 同期のエラーの種類。
+enum CloudSyncError {
+  /// 同期データがKVSの上限（1値1MB）を超えた。送らない。
+  tooLarge,
+
+  /// iCloudとのやり取り・データの検証に失敗した。
+  failed,
+}
+
+/// 1キー分の値。`[型, 値]`（型は b/i/d/s/l）でSharedPreferencesの型を保つ。
+typedef CloudSnapshot = Map<String, List<Object?>>;
+
+/// 最後に両端末で揃った内容（3方向マージの基準）の保存先（テストでは差し替える）。
+abstract interface class CloudSyncBaseStore {
+  Future<CloudSnapshot?> read();
+
+  Future<void> write(CloudSnapshot snapshot);
+}
+
+/// SharedPreferences以外に置いているデータ（日記・診断のJSONファイル）を
+/// 同期の中身に含めるための出入り口。中身は「JSON配列の文字列」で受け渡す。
+class CloudSyncFile {
+  const CloudSyncFile({
+    required this.key,
+    required this.read,
+    required this.write,
+  });
+
+  /// 同期データの中でのキー（[CloudSyncService.fileKeyPrefix]で始める）。
+  final String key;
+
+  /// 今の中身（JSON配列の文字列）。ファイルが無ければnull。
+  final Future<String?> Function() read;
+
+  /// 中身を置き換える（nullなら空にする）。
+  final Future<void> Function(String? json) write;
+}
+
+/// [CloudSyncBaseStore]をアプリ専用領域のJSONファイルに置く。
+/// SharedPreferencesに置くと、同期データの倍の大きさがUserDefaultsに乗るため分ける。
+class FileCloudSyncBaseStore implements CloudSyncBaseStore {
+  static const fileName = 'cloud_sync_base.json';
+
+  Future<File> _file() async {
+    final dir = await getApplicationSupportDirectory();
+    return File('${dir.path}/$fileName');
+  }
+
+  @override
+  Future<CloudSnapshot?> read() async {
+    try {
+      final file = await _file();
+      if (!await file.exists()) return null;
+      return CloudSyncService.decodeSnapshot(
+        jsonDecode(await file.readAsString()),
+      );
+    } on Object {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> write(CloudSnapshot snapshot) async {
+    final file = await _file();
+    await file.parent.create(recursive: true);
+    await file.writeAsString(jsonEncode(snapshot), flush: true);
+  }
+}
+
+/// iCloudのKVSで日記・診断と設定を同期する（osmGradusの`CloudSyncService`と
+/// 同じ入口・状態・設定画面の要素）。
+///
+/// 同期する中身は「端末ごとのキー（[isSyncedKey]）を除いたSharedPreferencesの
+/// 全キー」と「日記・診断のJSONファイル（[CloudSyncFile]、`file.`で始まるキー）」とし、
+/// gzip＋base64で1つの値にしてKVSへ置く。
+///
+/// - 取り込みはキー単位の3方向マージ（基準＝最後に揃った内容）。片方だけが
+///   変えたキーはその値を採り、削除も相手に伝わる。両方が変えたキーは、
+///   `id`または`date`付きのJSON配列（日記・診断は作成時刻`date`で見分ける）
+///   なら項目単位で同じ3方向マージをし、
+///   それ以外はiCloud（後から書かれた方）を採る
+/// - この端末がiCloudの中身を一度も確かめていない間（[confirmedKey]がfalse）は
+///   基準を空とみなし、端末とiCloudの両方の項目を残す（新規インストールの
+///   既定値でiCloudの記録を消さない）
+/// - iCloudが空なら、確かめる前でも端末の中身を送る。KVSの初回ダウンロード前の
+///   書き込みはiOSが捨て、初回同期の通知を送ってくるので、そのとき上の
+///   「両方を残す」マージで取り込み直す（送らずに通知を待つと、iCloudが本当に
+///   空のときは通知が来ず、どの端末も最初の1回を送らない）
+/// - 記録の保存ごとの通知は無いので、前面に戻ったとき・背面へ回るとき・
+///   前面にいる間の一定間隔・「今すぐ同期」で、基準から変わっていれば送る
+class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver {
+  CloudSyncService({
+    required this._prefs,
+    required this._bridge,
+    required this._baseStore,
+    required this._onApplied,
+    this.files = const [],
+  });
+
+  /// [CloudSyncFile.key]の接頭辞（SharedPreferencesのキーとぶつからないように）。
+  static const fileKeyPrefix = 'file.';
+
+  static const enabledKey = 'cloudSync.enabled';
+  static const lastSyncKey = 'cloudSync.lastSyncMs';
+
+  /// 最後に取り込んだ／書いたKVSの時刻。端末の時計のずれに左右されないよう、
+  /// 「新しいか」ではなく「前に見た時刻と違うか」で比べる。
+  static const seenRemoteTimestampKey = 'cloudSync.seenRemoteTimestamp';
+
+  /// iCloudの中身を確かめたか（他の端末のデータを取り込んだ、または自分の
+  /// 書き込みがiCloudに残っているのを読み戻した）。falseの間の基準は空。
+  static const confirmedKey = 'cloudSync.confirmed';
+
+  /// KVSの1値の上限（osmNichinichiと同じく1,000,000バイト未満だけ送る）。
+  static const maxBytes = 1000000;
+
+  /// 前面にいる間に、変更を送るか確かめる間隔。
+  static const periodicInterval = Duration(minutes: 1);
+
+  static const _payloadPrefix = 'gz1:';
+  static const _payloadVersion = 1;
+
+  /// 端末ごとの設定（同期しない）。表示言語・案内の表示はosmGradusと同じく
+  /// 端末ごと。開発者モード、日記ファイルのスケール移行済みフラグ（その端末の
+  /// ファイルを移行したかの印）も端末ごと。
+  static const _deviceLocalKeys = {
+    AppPreferences.languageKey,
+    AppPreferences.showStartupScreenKey,
+    AppPreferences.showUsageScreenKey,
+    AppPreferences.developerModeEnabledKey,
+    'osmGenki.japaneseLevelMigratedToTenScale',
+    'osmGenki.genkiScoreMigratedToTenScale',
+  };
+
+  /// 同期しないキーの接頭辞。同期自身の状態、音声送信の同意（端末で確認する）、
+  /// 開発者向けの音声認識ログ・採点キャリブレーション。
+  static const _deviceLocalPrefixes = [
+    'cloudSync.',
+    'osmGenki.privacy.',
+    'osmGenki.speechRecognition.',
+    'osmGenki.calibration.',
+    fileKeyPrefix,
+  ];
+
+  static bool isSyncedKey(String key) =>
+      !_deviceLocalKeys.contains(key) &&
+      !_deviceLocalPrefixes.any(key.startsWith);
+
+  final SharedPreferences _prefs;
+  final ICloudBridge _bridge;
+
+  /// SharedPreferences以外に置いている同期対象のデータ。
+  final List<CloudSyncFile> files;
+  final CloudSyncBaseStore _baseStore;
+
+  /// 取り込んだ後に、値をメモリに持つサービスを読み直す。
+  final Future<void> Function() _onApplied;
+
+  CloudSyncStatus _status = CloudSyncStatus.idle;
+  CloudSyncStatus get status => _status;
+
+  CloudSyncError? _error;
+  CloudSyncError? get error => _error;
+
+  /// [CloudSyncError.tooLarge]のときの同期データのバイト数。
+  int? _errorBytes;
+  int? get errorBytes => _errorBytes;
+
+  /// 最後に確かめたiCloudのサインイン状態（まだならnull）。
+  bool? _icloudAvailable;
+  bool? get icloudAvailable => _icloudAvailable;
+
+  /// 実行中の同期（null＝していない）。
+  Future<void>? _current;
+
+  /// 同期中か（設定の「今すぐ同期」を押せなくし、「同期中…」と出す）。
+  bool get isWorking => _current != null;
+
+  Timer? _periodic;
+
+  /// 読み込み済みの基準（null＝まだファイルを読んでいない）。
+  CloudSnapshot? _base;
+
+  bool get isEnabled => _prefs.getBool(enabledKey) ?? false;
+
+  /// オンにしたらすぐ1回同期する。オフでは送らない・受けない。
+  Future<void> setEnabled(bool value) async {
+    await _prefs.setBool(enabledKey, value);
+    // オフの間の変更は基準と比べられないので、オンにしたら確かめ直す
+    // （次の取り込みは両方の項目を残すマージ）。
+    if (value) await _prefs.setBool(confirmedKey, false);
+    if (!value) _setStatus(CloudSyncStatus.idle);
+    notifyListeners();
+    if (value) await manualSync();
+  }
+
+  DateTime? get lastSyncDate {
+    final ms = _prefs.getInt(lastSyncKey);
+    return ms == null ? null : DateTime.fromMillisecondsSinceEpoch(ms);
+  }
+
+  /// iCloudの中身をまだ確かめていないか（新規インストール・初期化後・同期をオンにした直後）。
+  bool get _unconfirmed => !(_prefs.getBool(confirmedKey) ?? false);
+
+  /// 起動時に1回呼ぶ（main、iOSのみ）。他の端末からの変更と、前面に戻ったとき・
+  /// 背面へ回るときの同期を始める。
+  Future<void> attach() async {
+    WidgetsBinding.instance.addObserver(this);
+    try {
+      await _bridge.startObserving(() => unawaited(sync()));
+    } on Exception catch (e) {
+      debugPrint('osm_genki: iCloud observe failed: $e');
+    }
+    _startPeriodic();
+    await sync();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        _startPeriodic();
+        unawaited(sync());
+      case AppLifecycleState.paused || AppLifecycleState.hidden:
+        _periodic?.cancel();
+        // 背面に回る前に、この端末の変更を送っておく。
+        unawaited(sync());
+      case AppLifecycleState.inactive || AppLifecycleState.detached:
+        break;
+    }
+  }
+
+  void _startPeriodic() {
+    _periodic?.cancel();
+    _periodic = Timer.periodic(periodicInterval, (_) => unawaited(sync()));
+  }
+
+  @override
+  void dispose() {
+    _periodic?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// 設定の「今すぐ同期」。自動の同期の途中なら、それが終わってからもう一度行う。
+  /// 終わった後にエラーが無ければtrue（画面に結果を出すため）。
+  Future<bool> manualSync() async {
+    await _current;
+    await sync();
+    return isEnabled &&
+        _error == null &&
+        _status != CloudSyncStatus.unavailable;
+  }
+
+  /// iCloudに変更があれば取り込み、この端末に変更があれば送る。
+  Future<void> sync() async {
+    if (!isEnabled || _current != null) return;
+    final run = _exchange();
+    _current = run;
+    notifyListeners();
+    try {
+      await run;
+    } finally {
+      _current = null;
+      notifyListeners();
+    }
+  }
+
+  Future<void> _exchange() async {
+    if (!await _checkAvailable()) return;
+    final CloudSnapshot local;
+    try {
+      local = await _localSnapshot();
+    } on Object catch (e) {
+      debugPrint('osm_genki: local snapshot failed: $e');
+      _setStatus(CloudSyncStatus.error, error: CloudSyncError.failed);
+      return;
+    }
+    final ({String? data, double timestamp}) remote;
+    try {
+      remote = await _bridge.read();
+    } on Exception catch (e) {
+      debugPrint('osm_genki: iCloud read failed: $e');
+      _setStatus(CloudSyncStatus.error, error: CloudSyncError.failed);
+      return;
+    }
+    final unconfirmed = _unconfirmed;
+    final remoteData = remote.data;
+    final remoteHasData = remoteData != null && remoteData.isNotEmpty;
+    final seen = _prefs.getDouble(seenRemoteTimestampKey);
+
+    if (remoteHasData &&
+        unconfirmed &&
+        remote.timestamp == seen &&
+        await _isOwnWrite(remoteData)) {
+      // 自分の書き込みがiCloudに残っていた（iCloudは空だった）。以後は基準を使う。
+      await _prefs.setBool(confirmedKey, true);
+    } else if (remoteHasData && (unconfirmed || remote.timestamp != seen)) {
+      await _download(remoteData, remote.timestamp, local, unconfirmed);
+      return;
+    }
+    final base = await _loadBase();
+    if (unconfirmed || _canonical(local) != _canonical(base)) {
+      await _upload(local);
+      return;
+    }
+    // 送るものも受け取るものも無かった。iCloudは確かめたので最終同期は今。
+    await _prefs.setInt(lastSyncKey, clock.now().millisecondsSinceEpoch);
+    _setStatus(CloudSyncStatus.idle);
+  }
+
+  /// [data]がこの端末が最後に書いた内容（基準）と同じか。
+  Future<bool> _isOwnWrite(String data) async {
+    try {
+      return _canonical(decodePayload(data)) == _canonical(await _loadBase());
+    } on Object {
+      return false;
+    }
+  }
+
+  Future<bool> _checkAvailable() async {
+    bool ok;
+    try {
+      ok = await _bridge.isAvailable();
+    } on Exception {
+      ok = false;
+    }
+    _icloudAvailable = ok;
+    if (!ok) _setStatus(CloudSyncStatus.unavailable);
+    return ok;
+  }
+
+  void _setStatus(
+    CloudSyncStatus status, {
+    CloudSyncError? error,
+    int? errorBytes,
+  }) {
+    _status = status;
+    _error = error;
+    _errorBytes = errorBytes;
+    notifyListeners();
+  }
+
+  Future<CloudSnapshot> _loadBase() async =>
+      _base ??= await _baseStore.read() ?? {};
+
+  Future<void> _saveBase(CloudSnapshot snapshot) async {
+    _base = snapshot;
+    await _baseStore.write(snapshot);
+  }
+
+  // MARK: 送る
+
+  Future<void> _upload(CloudSnapshot snapshot) async {
+    _setStatus(CloudSyncStatus.uploading);
+    if (await _write(snapshot)) _setStatus(CloudSyncStatus.idle);
+  }
+
+  /// [snapshot]をKVSへ書き、基準にする。上限超え・失敗はエラーにしてfalse。
+  Future<bool> _write(CloudSnapshot snapshot) async {
+    try {
+      final payload = encodePayload(snapshot);
+      final bytes = utf8.encode(payload).length;
+      // 黙って切らずに、送らないでエラーにする。
+      if (bytes >= maxBytes) {
+        _setStatus(
+          CloudSyncStatus.error,
+          error: CloudSyncError.tooLarge,
+          errorBytes: bytes,
+        );
+        return false;
+      }
+      final now = clock.now();
+      final timestamp = now.millisecondsSinceEpoch / 1000;
+      await _bridge.write(payload, timestamp);
+      await _saveBase(snapshot);
+      await _prefs.setDouble(seenRemoteTimestampKey, timestamp);
+      await _prefs.setInt(lastSyncKey, now.millisecondsSinceEpoch);
+      return true;
+    } on Exception catch (e) {
+      debugPrint('osm_genki: iCloud upload failed: $e');
+      _setStatus(CloudSyncStatus.error, error: CloudSyncError.failed);
+      return false;
+    }
+  }
+
+  // MARK: 取り込む
+
+  Future<void> _download(
+    String data,
+    double remoteTimestamp,
+    CloudSnapshot local,
+    bool unconfirmed,
+  ) async {
+    _setStatus(CloudSyncStatus.downloading);
+    final CloudSnapshot remote;
+    try {
+      remote = decodePayload(data);
+    } on Object catch (e) {
+      debugPrint('osm_genki: iCloud payload invalid: $e');
+      _setStatus(CloudSyncStatus.error, error: CloudSyncError.failed);
+      return;
+    }
+    // iCloudを確かめる前の基準は空（両方の項目を残す）。
+    final base = unconfirmed ? <String, List<Object?>>{} : await _loadBase();
+    final merged = mergeSnapshots(base: base, local: local, remote: remote);
+    try {
+      await _applyToPrefs(merged, local);
+      // iCloudの中身を取り込んだので、以後は基準を使ったマージにする。
+      await _prefs.setBool(confirmedKey, true);
+      if (_canonical(merged) != _canonical(remote)) {
+        // この端末の変更が混ざった。相手にも渡す。
+        if (!await _write(merged)) return;
+      } else {
+        await _saveBase(merged);
+        await _prefs.setDouble(seenRemoteTimestampKey, remoteTimestamp);
+        await _prefs.setInt(lastSyncKey, clock.now().millisecondsSinceEpoch);
+      }
+      if (_canonical(merged) != _canonical(local)) await _onApplied();
+      _setStatus(CloudSyncStatus.idle);
+    } on Exception catch (e) {
+      debugPrint('osm_genki: iCloud download failed: $e');
+      _setStatus(CloudSyncStatus.error, error: CloudSyncError.failed);
+    }
+  }
+
+  /// [merged]になるよう、[local]から変わったキーだけを書き換える。
+  Future<void> _applyToPrefs(CloudSnapshot merged, CloudSnapshot local) async {
+    for (final file in files) {
+      final value = merged[file.key];
+      if (jsonEncode(value) == jsonEncode(local[file.key])) continue;
+      final raw = value != null && value.length == 2 ? value[1] : null;
+      await file.write(raw is String ? raw : null);
+    }
+    for (final key in local.keys) {
+      if (key.startsWith(fileKeyPrefix)) continue;
+      if (!merged.containsKey(key)) await _prefs.remove(key);
+    }
+    for (final MapEntry(:key, :value) in merged.entries) {
+      if (key.startsWith(fileKeyPrefix)) continue;
+      if (jsonEncode(value) == jsonEncode(local[key])) continue;
+      final raw = value.length == 2 ? value[1] : null;
+      switch (value.first) {
+        case 'b' when raw is bool:
+          await _prefs.setBool(key, raw);
+        case 'i' when raw is num:
+          await _prefs.setInt(key, raw.toInt());
+        case 'd' when raw is num:
+          await _prefs.setDouble(key, raw.toDouble());
+        case 's' when raw is String:
+          await _prefs.setString(key, raw);
+        case 'l' when raw is List:
+          await _prefs.setStringList(key, raw.whereType<String>().toList());
+      }
+    }
+  }
+
+  // MARK: 中身の形
+
+  /// この端末の今の中身（SharedPreferences＋[files]）。
+  Future<CloudSnapshot> _localSnapshot() async {
+    final result = snapshotOf(_prefs);
+    for (final file in files) {
+      final value = normalizeFileJson(await file.read());
+      if (value != null) result[file.key] = ['s', value];
+    }
+    return result;
+  }
+
+  /// ファイルの中身を比べられる形にする。空の配列・無いファイルはnull
+  /// （「無い」と「空」を同じに扱い、初期化した端末どうしで行き来しない）。
+  @visibleForTesting
+  static String? normalizeFileJson(String? raw) {
+    if (raw == null || raw.trim().isEmpty) return null;
+    final decoded = jsonDecode(raw);
+    if (decoded is! List) throw const FormatException('not a JSON array');
+    if (decoded.isEmpty) return null;
+    return jsonEncode(decoded);
+  }
+
+  /// 同期するキー（[isSyncedKey]）の今の値。
+  static CloudSnapshot snapshotOf(SharedPreferences prefs) {
+    final result = <String, List<Object?>>{};
+    for (final key in prefs.getKeys()) {
+      if (!isSyncedKey(key)) continue;
+      final value = prefs.get(key);
+      final tagged = switch (value) {
+        bool() => ['b', value],
+        int() => ['i', value],
+        double() => ['d', value],
+        String() => ['s', value],
+        List() => ['l', value.whereType<String>().toList()],
+        _ => null,
+      };
+      if (tagged != null) result[key] = tagged;
+    }
+    return result;
+  }
+
+  /// KVSに置く文字列（`gz1:` ＋ gzipしたJSONのbase64）。
+  static String encodePayload(CloudSnapshot snapshot) {
+    final json = jsonEncode({'version': _payloadVersion, 'prefs': snapshot});
+    return '$_payloadPrefix${base64Encode(gzip.encode(utf8.encode(json)))}';
+  }
+
+  static CloudSnapshot decodePayload(String data) {
+    if (!data.startsWith(_payloadPrefix)) {
+      throw const FormatException('unknown iCloud payload');
+    }
+    final bytes = gzip.decode(
+      base64Decode(data.substring(_payloadPrefix.length)),
+    );
+    final decoded = jsonDecode(utf8.decode(bytes));
+    if (decoded is! Map) throw const FormatException('invalid payload');
+    return decodeSnapshot(decoded['prefs']);
+  }
+
+  static CloudSnapshot decodeSnapshot(Object? raw) {
+    if (raw is! Map) throw const FormatException('invalid snapshot');
+    return {
+      for (final MapEntry(:key, :value) in raw.entries)
+        if (value is List && value.length == 2 && value.first is String)
+          '$key': List<Object?>.from(value),
+    };
+  }
+
+  static String _canonical(CloudSnapshot snapshot) {
+    final keys = snapshot.keys.toList()..sort();
+    return jsonEncode([
+      for (final key in keys) [key, snapshot[key]],
+    ]);
+  }
+
+  // MARK: マージ
+
+  /// キー単位の3方向マージ。値がnull（無い）の結果はキーごと消す。
+  @visibleForTesting
+  static CloudSnapshot mergeSnapshots({
+    required CloudSnapshot base,
+    required CloudSnapshot local,
+    required CloudSnapshot remote,
+  }) {
+    final result = <String, List<Object?>>{};
+    for (final key in {...local.keys, ...remote.keys}) {
+      final merged = _mergeValue(base[key], local[key], remote[key]);
+      if (merged != null) result[key] = merged;
+    }
+    return result;
+  }
+
+  static List<Object?>? _mergeValue(
+    List<Object?>? base,
+    List<Object?>? local,
+    List<Object?>? remote,
+  ) {
+    final b = jsonEncode(base);
+    final l = jsonEncode(local);
+    final r = jsonEncode(remote);
+    if (l == r || r == b) return local;
+    if (l == b) return remote;
+    // 両方が変えた。
+    if (local == null || remote == null) return local ?? remote;
+    return _mergeItems(base, local, remote) ?? remote;
+  }
+
+  /// 配列の値を項目単位で3方向マージする。項目を見分けられない値はnull。
+  /// 並びは端末の順で、iCloudだけにある項目を後ろに足す。
+  static List<Object?>? _mergeItems(
+    List<Object?>? base,
+    List<Object?> local,
+    List<Object?> remote,
+  ) {
+    final type = local.first;
+    if (type != remote.first || (type != 's' && type != 'l')) return null;
+    final l = _keyedItems(local);
+    final r = _keyedItems(remote);
+    if (l == null || r == null) return null;
+    final b =
+        (base != null && base.first == type ? _keyedItems(base) : null) ??
+        <String, Object?>{};
+    final items = <Object?>[];
+    for (final key in {...l.keys, ...r.keys}) {
+      final lv = jsonEncode(l[key]);
+      final rv = jsonEncode(r[key]);
+      final bv = jsonEncode(b[key]);
+      final Object? item;
+      if (lv == rv || rv == bv) {
+        item = l[key];
+      } else if (lv == bv) {
+        item = r[key];
+      } else {
+        // 両方が変えた項目。消した側より変えた側を残す（両方変えたらiCloud）。
+        item = r[key] ?? l[key];
+      }
+      if (item != null) items.add(item);
+    }
+    return type == 's' ? ['s', jsonEncode(items)] : ['l', items];
+  }
+
+  /// 項目がオブジェクトならMapで返す（JSON文字列のオブジェクトも読む）。
+  static Map<String, Object?>? _asMap(Object? item) {
+    if (item is Map) return Map<String, Object?>.from(item);
+    if (item is String && item.startsWith('{')) {
+      try {
+        final decoded = jsonDecode(item);
+        if (decoded is Map) return Map<String, Object?>.from(decoded);
+      } on FormatException {
+        return null;
+      }
+    }
+    return null;
+  }
+
+  /// 項目の見分け方: `id`、無ければ`date`（日記・診断の作成時刻。マイクロ秒まで
+  /// 持つので1件ずつ違う）。オブジェクトでない文字列はその文字列そのもの。
+  /// 文字列の中のJSONオブジェクトも読んで見分ける。
+  /// 重複や見分けられない項目があればnull。
+  static Map<String, Object?>? _keyedItems(List<Object?> tagged) {
+    final raw = tagged.length == 2 ? tagged[1] : null;
+    Object? list = raw;
+    if (tagged.first == 's') {
+      if (raw is! String || !raw.trimLeft().startsWith('[')) return null;
+      try {
+        list = jsonDecode(raw);
+      } on FormatException {
+        return null;
+      }
+    }
+    if (list is! List) return null;
+    final result = <String, Object?>{};
+    for (final item in list) {
+      final key = switch (_asMap(item)) {
+        {'id': final Object id} => 'id:$id',
+        {'date': final Object date} => 'date:$date',
+        null when item is String => 's:$item',
+        _ => null,
+      };
+      if (key == null || result.containsKey(key)) return null;
+      result[key] = item;
+    }
+    return result;
+  }
+}

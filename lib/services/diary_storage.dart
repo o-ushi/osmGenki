@@ -381,6 +381,28 @@ class DiaryStorage {
     changes.value++;
   }
 
+  /// iCloud同期用: ファイルの中身（JSON配列の文字列）をそのまま返す。無ければnull。
+  static Future<String?> readRawForSync() => _synchronized(() async {
+    final file = await _file();
+    if (!await file.exists()) return null;
+    return file.readAsString();
+  });
+
+  /// iCloud同期用: マージ済みの中身（JSON配列の文字列、nullなら空）で置き換える。
+  /// 他の保存と同じロック・アトミック書き込みを使い、一覧・グラフに知らせる。
+  static Future<void> replaceRawForSync(String? json) =>
+      _synchronized(() async {
+        final content = json ?? '[]';
+        if (jsonDecode(content) is! List) {
+          throw const FormatException('diary sync data is not a list');
+        }
+        final file = await _file();
+        final tmpFile = File('${file.path}.tmp');
+        await tmpFile.writeAsString(content, flush: true);
+        await tmpFile.rename(file.path);
+        changes.value++;
+      });
+
   /// ボイス日記・ダッシュボード（元気度グラフ等）のデータをすべて削除する。
   static Future<void> clearAll() =>
       _synchronized(() => _writeAllUnlocked(const []));

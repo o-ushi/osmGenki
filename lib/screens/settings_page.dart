@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_strings.dart';
 import '../app_globals.dart';
+import '../services/cloud_sync/cloud_sync_service.dart';
 import '../services/diary_backup_actions.dart';
 import '../services/jsst_calibration_service.dart';
 import '../theme/app_colors.dart';
@@ -73,7 +74,7 @@ class _SettingsPageState extends State<SettingsPage> {
           children: [
             const SizedBox(height: 12),
             _sectionHeader('言語'.tr(lang)),
-            _card(const [LanguagePickerList()]),
+            _card([LanguagePickerList()]),
             _noteText('アプリの表示言語を変更できます。'.tr(lang)),
 
             _sectionHeader('週の開始'.tr(lang)),
@@ -117,6 +118,16 @@ class _SettingsPageState extends State<SettingsPage> {
                 value: appSettings.showStartupScreen,
                 onChanged: (value) => appSettings.showStartupScreen = value,
               ),
+              const _ItemDivider(),
+              // 使い方はスタートアップがONのときだけ切り替えられる（osm日日是好日と同じ）。
+              _SwitchTile(
+                label: '使い方画面'.tr(lang),
+                subtitle: '使い方画面_説明'.tr(lang),
+                value: appSettings.showUsageScreen,
+                onChanged: appSettings.showStartupScreen
+                    ? (value) => appSettings.showUsageScreen = value
+                    : null,
+              ),
             ]),
 
             _sectionHeader('操作'.tr(lang)),
@@ -141,6 +152,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 onTap: () => importDiary(context),
               ),
             ]),
+
+            // iCloud同期（iPhoneのみ。Androidでは出さない）。
+            if (cloudSync case final sync?) ...[
+              _sectionHeader('iCloud同期'.tr(lang)),
+              _CloudSyncCard(sync: sync, card: _card, noteText: _noteText),
+            ],
 
             _sectionHeader('プライバシー'.tr(lang)),
             _card([
@@ -232,6 +249,118 @@ class _SettingsPageState extends State<SettingsPage> {
         ? '—'
         : '$sign${bias.toStringAsFixed(2)}（$tendency）';
     return _ValueTile(label: '補正係数'.tr(lang), value: value);
+  }
+}
+
+/// iCloud同期（osmGradusの設定と同じ要素: オン／オフ・未サインインの注意・
+/// 最終同期・今すぐ同期・エラー）。
+class _CloudSyncCard extends StatelessWidget {
+  const _CloudSyncCard({
+    required this.sync,
+    required this.card,
+    required this.noteText,
+  });
+
+  final CloudSyncService sync;
+  final Widget Function(List<Widget> children) card;
+  final Widget Function(String text) noteText;
+
+  /// 「今すぐ同期」。終わったら結果をスナックバーで知らせる
+  /// （送るものが無くても反応が分かるように）。
+  Future<void> _syncNow(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final ok = await sync.manualSync();
+    final lang = appSettings.language;
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text((ok ? 'iCloud同期_完了' : 'iCloud同期_失敗_短').tr(lang)),
+        ),
+      );
+  }
+
+  String _formatLast(DateTime last, String lang) {
+    final hh = last.hour.toString().padLeft(2, '0');
+    final mm = last.minute.toString().padLeft(2, '0');
+    return '${AppStrings.dateLabel(last, lang)} $hh:$mm';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: sync,
+      builder: (context, _) {
+        final lang = appSettings.language;
+        final enabled = sync.isEnabled;
+        final unavailable =
+            sync.status == CloudSyncStatus.unavailable ||
+            sync.icloudAvailable == false;
+        final last = sync.lastSyncDate;
+        final errorText = switch (sync.error) {
+          CloudSyncError.tooLarge => 'iCloud同期_容量超過'.trFmt(lang, [
+            ((sync.errorBytes ?? 0) / 1000000).toStringAsFixed(1),
+          ]),
+          CloudSyncError.failed => 'iCloud同期_失敗'.tr(lang),
+          null => null,
+        };
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            card([
+              _SwitchTile(
+                key: const ValueKey('settings-cloud-sync'),
+                label: 'iCloudで同期する'.tr(lang),
+                subtitle: 'iCloud同期_スイッチ説明'.tr(lang),
+                value: enabled,
+                onChanged: (value) => sync.setEnabled(value),
+              ),
+              if (enabled && !unavailable) ...[
+                const _ItemDivider(),
+                _ValueTile(
+                  label: last == null
+                      ? 'iCloud同期_未同期'.tr(lang)
+                      : 'iCloud同期_最終同期'.tr(lang),
+                  value: last == null ? '' : _formatLast(last, lang),
+                ),
+                const _ItemDivider(),
+                Opacity(
+                  opacity: sync.isWorking ? 0.4 : 1,
+                  child: _NavigationTile(
+                    key: const ValueKey('settings-cloud-sync-now'),
+                    label: sync.isWorking
+                        ? 'iCloud同期_同期中'.tr(lang)
+                        : 'iCloud同期_今すぐ同期'.tr(lang),
+                    onTap: sync.isWorking ? () {} : () => _syncNow(context),
+                  ),
+                ),
+              ],
+            ]),
+            if (enabled && unavailable)
+              _CloudSyncWarning('iCloud同期_未サインイン'.tr(lang)),
+            if (enabled && errorText != null) _CloudSyncWarning(errorText),
+            noteText('iCloud同期_説明'.tr(lang)),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _CloudSyncWarning extends StatelessWidget {
+  const _CloudSyncWarning(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
+      child: Text(
+        text,
+        style: const TextStyle(color: Colors.red, fontSize: 13),
+      ),
+    );
   }
 }
 
@@ -327,6 +456,7 @@ class _ChoiceTile extends StatelessWidget {
 
 class _SwitchTile extends StatelessWidget {
   const _SwitchTile({
+    super.key,
     required this.label,
     required this.subtitle,
     required this.value,
@@ -336,36 +466,43 @@ class _SwitchTile extends StatelessWidget {
   final String label;
   final String subtitle;
   final bool value;
-  final ValueChanged<bool> onChanged;
+
+  /// null なら無効表示（タップもスイッチも効かない）。
+  final ValueChanged<bool>? onChanged;
 
   @override
   Widget build(BuildContext context) {
+    final onChanged = this.onChanged;
+    final enabled = onChanged != null;
     return InkWell(
-      onTap: () => onChanged(!value),
+      onTap: enabled ? () => onChanged(!value) : null,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
           children: [
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 17,
-                      color: AppColors.current.textOnCardPrimary,
+              child: Opacity(
+                opacity: enabled ? 1 : 0.4,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 17,
+                        color: AppColors.current.textOnCardPrimary,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      color: AppColors.current.textOnCardSecondary,
-                      fontSize: 13,
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        color: AppColors.current.textOnCardSecondary,
+                        fontSize: 13,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             Switch.adaptive(
@@ -382,7 +519,12 @@ class _SwitchTile extends StatelessWidget {
 }
 
 class _NavigationTile extends StatelessWidget {
-  const _NavigationTile({required this.label, required this.onTap, this.value});
+  const _NavigationTile({
+    super.key,
+    required this.label,
+    required this.onTap,
+    this.value,
+  });
 
   final String label;
   final String? value;

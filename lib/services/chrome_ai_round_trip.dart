@@ -54,4 +54,13 @@ abstract final class ChromeAiRoundTrip {
     if (text.isEmpty) return null;
     return text;
   }
+
+  /// Chromeへ送る直前にコピーした[sentPrompt]が、まだクリップボードに
+  /// 残っているかどうか。AI回答をコピーせずアプリに戻ったときの誤保存
+  /// （アプリ復帰時の自動貼り付けが、送信済みプロンプトをそのまま結果として
+  /// 保存してしまう事故）を防ぐために使う。
+  static bool isUnchangedSentPrompt(String? clipboard, String sentPrompt) {
+    if (clipboard == null) return false;
+    return clipboard.trim() == sentPrompt.trim();
+  }
 }

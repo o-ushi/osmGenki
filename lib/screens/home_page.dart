@@ -26,7 +26,6 @@ import '../services/privacy_consent.dart';
 import '../services/shake_detector_service.dart';
 import '../services/timer_alert.dart';
 import '../theme/app_colors.dart';
-import '../widgets/appearance_background_layer.dart';
 import '../widgets/confirm_dialog.dart';
 import '../widgets/genki_help_sheet.dart';
 import '../widgets/genki_more_actions_menu.dart';
@@ -125,6 +124,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   /// クリップボードへコピー済みで、Chrome AIモードの解析結果の貼り付け待ち。
   bool _awaitingPasteResult = false;
 
+  /// Chromeへ送るためにコピーしたプロンプト（[_awaitingPasteResult]中のみ保持）。
+  /// アプリ復帰時の自動貼り付けで、AIの回答をまだコピーしていないのに
+  /// 送信済みプロンプトをそのまま結果として保存してしまうのを防ぐために使う。
+  String? _pendingSentPrompt;
+
   /// 直近の録音を再生中かどうか（聴き直しボタンの状態表示用）。
   bool _isPlayingRecording = false;
 
@@ -212,10 +216,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (state != AppLifecycleState.resumed) return;
     if (!_awaitingPasteResult) return;
 
-    // 復帰直後は UI を先に描画し、キープアライブの復旧は後から行う。
-    // 遅延後も貼り付け待ち状態を再確認する（途中でリセットされた場合は何もしない）。
+    // 復帰直後は UI を先に描画し、クリップボードの読み取り・キープアライブの
+    // 復旧は後から行う。遅延後も貼り付け待ち状態を再確認する
+    // （途中でリセットされた場合は何もしない）。
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !_awaitingPasteResult) return;
+      // Chromeでコピーせずに戻ってきた場合はクリップボードが送信済み
+      // プロンプトのままなので、そのときは何もせず貼り付け待ちを維持する。
+      unawaited(_pasteAndSaveResult(context, silentIfUnchanged: true));
       if (_startedKeeperForChromeSession &&
           !BackgroundAudioKeeper.instance.isActuallyPlaying) {
         Future<void>.delayed(AppConstants.chromeKeepAliveRecoverDelay, () {
@@ -452,6 +460,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     _lastReleasedAt = null;
     _pickRandomDisplayPrompt();
     _awaitingPasteResult = false;
+    _pendingSentPrompt = null;
     _isSessionSaved = false;
   }
 
@@ -571,7 +580,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       onAcquireKeepAlive: _ensureKeepAliveForChrome,
     );
     if (!mounted || !opened) return;
-    setState(() => _awaitingPasteResult = true);
+    setState(() {
+      _awaitingPasteResult = true;
+      _pendingSentPrompt = prompt;
+    });
   }
 
   /// Chrome AIの解析結果と顔マークの起点から、保存する最終元気度（0〜10）を求める。
@@ -609,12 +621,28 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return null;
   }
 
-  /// 「貼り付け」タップ時の処理。確認ダイアログは挟まず、クリップボードの内容を
-  /// そのまま解析して即座に日記へ保存する。
-  Future<void> _pasteAndSaveResult(BuildContext context) async {
+  /// 「貼り付け」タップ時（またはChromeから戻ってアプリが復帰した直後）の処理。
+  /// 確認ダイアログは挟まず、クリップボードの内容をそのまま解析して即座に日記へ
+  /// 保存する。まだAIの回答をコピーしておらずクリップボードが送信済みプロンプトの
+  /// ままの場合は、誤って保存しないよう何もしない（自動貼り付けが早すぎたときの
+  /// 保険。手動タップ時は都度のエラー表示で気付ける）。
+  Future<void> _pasteAndSaveResult(
+    BuildContext context, {
+    bool silentIfUnchanged = false,
+  }) async {
     final lang = appSettings.language;
     final text = await ChromeAiRoundTrip.readClipboardText();
     if (!context.mounted) return;
+
+    final sentPrompt = _pendingSentPrompt;
+    if (sentPrompt != null &&
+        ChromeAiRoundTrip.isUnchangedSentPrompt(text, sentPrompt)) {
+      if (silentIfUnchanged) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('解析結果を読み取れなかった'.tr(lang))));
+      return;
+    }
 
     final parsed = ChromeAiResultParser.parse(text ?? '');
     final genkiScore = _resolveGenkiScore(
@@ -690,6 +718,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     setState(() {
       _isSessionSaved = true;
       _awaitingPasteResult = false;
+      _pendingSentPrompt = null;
       _tab = _MainTab.diary;
     });
     _stopChromeKeepAliveIfOwned();
@@ -994,7 +1023,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final lang = appSettings.language;
     final scene = appAppearance.sceneColor;
-    final effectiveScheme = appAppearance.effectiveColorScheme;
     final fg = appAppearance.foregroundOn(scene);
 
     return Scaffold(
@@ -1002,10 +1030,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          AppearanceBackgroundLayer(
-            sceneColor: scene,
-            colorScheme: effectiveScheme,
-          ),
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),

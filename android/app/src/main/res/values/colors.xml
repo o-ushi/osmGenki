@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- アプリのシーン背景色（RGB 61, 89, 147）。起動直後の画面もこの色にする。 -->
+    <color name="scene_background">#3D5993</color>
+</resources>

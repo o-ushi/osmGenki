@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_strings.dart';
 import '../app_globals.dart';
@@ -11,6 +12,25 @@ import '../widgets/swipe_down_to_dismiss.dart';
 
 class HelpPage extends StatefulWidget {
   const HelpPage({super.key});
+
+  /// Google スライド操作マニュアル（言語別・閲覧用 preview）。
+  /// 共有は「リンクを知っている全員」。編集 URL ではなく preview を開く。
+  /// 英語・ベトナム語は同じファイルを上書き更新する前提（ID は固定）。
+  static const userManualPresentationIdJa =
+      '1Ii-ernIly0Wp7y_xL9BOaA5c49KEW3rwbMZ4ABeZZNI';
+  static const userManualPresentationIdEn =
+      '15xtzSqvYMOoajFl_PD9RK5ZXLRx59nipnBboESVpbU4';
+  static const userManualPresentationIdVi =
+      '1WZZLjW7V0CXLV12VXdiqt0WtrzTQGtr1LfEAOfmLc0g';
+
+  static String userManualUrlFor(String language) {
+    final id = switch (language) {
+      'en' => userManualPresentationIdEn,
+      'ja' => userManualPresentationIdJa,
+      _ => userManualPresentationIdVi,
+    };
+    return 'https://docs.google.com/presentation/d/$id/preview';
+  }
 
   @override
   State<HelpPage> createState() => _HelpPageState();
@@ -109,6 +129,16 @@ class _HelpPageState extends State<HelpPage> {
                 ),
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: _HelpManualLink(
+                languageCode: lang,
+                onTap: () => launchUrl(
+                  Uri.parse(HelpPage.userManualUrlFor(lang)),
+                  mode: LaunchMode.externalApplication,
+                ),
+              ),
+            ),
             _section('基本操作'.tr(lang), [
               _HelpRow(
                 icon: CupertinoIcons.mic_fill,
@@ -193,6 +223,24 @@ class _HelpPageState extends State<HelpPage> {
                 languageCode: lang,
               ),
             ]),
+            _section('データ'.tr(lang), [
+              _HelpRow(
+                icon: Icons.import_export_rounded,
+                color: Colors.indigo,
+                titleKey: 'help.backup.title',
+                bodyKey: 'help.backup.body',
+                languageCode: lang,
+              ),
+              // iCloud同期はiPhoneだけ（Androidでは設定にも出さない）。
+              if (cloudSync != null)
+                _HelpRow(
+                  icon: Icons.cloud_sync_rounded,
+                  color: Colors.lightBlue,
+                  titleKey: 'help.icloud.title',
+                  bodyKey: 'help.icloud.body',
+                  languageCode: lang,
+                ),
+            ]),
             const SizedBox(height: 24),
           ],
         ),
@@ -217,6 +265,82 @@ class _HelpPageState extends State<HelpPage> {
         ),
         ...children,
       ],
+    );
+  }
+}
+
+class _HelpManualLink extends StatelessWidget {
+  const _HelpManualLink({required this.languageCode, required this.onTap});
+
+  final String languageCode;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = AppColors.current;
+    final accent = palette.scene;
+    return Material(
+      color: palette.cardFill,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        key: const Key('help_user_manual'),
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: palette.cardBorder),
+          ),
+          padding: const EdgeInsets.fromLTRB(14, 14, 12, 14),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: accent,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.menu_book_outlined,
+                  color: palette.textOnScenePrimary,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '操作マニュアル'.tr(languageCode),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: palette.textOnCardPrimary,
+                      ),
+                    ),
+                    Text(
+                      '図解で画面ごとの使い方を見る'.tr(languageCode),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: accent,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.open_in_new_rounded,
+                size: 18,
+                color: palette.textOnCardSecondary,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
