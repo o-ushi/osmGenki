@@ -1,36 +1,17 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_strings.dart';
 import '../app_globals.dart';
 import '../theme/app_colors.dart';
 import '../theme/appearance_resolver.dart';
+import '../widgets/genki_expand_card.dart';
 import '../widgets/genki_subpage_scaffold.dart';
 import '../widgets/swipe_down_to_dismiss.dart';
+import 'privacy_page.dart';
 
 class HelpPage extends StatefulWidget {
   const HelpPage({super.key});
-
-  /// Google スライド操作マニュアル（言語別・閲覧用 preview）。
-  /// 共有は「リンクを知っている全員」。編集 URL ではなく preview を開く。
-  /// 英語・ベトナム語は同じファイルを上書き更新する前提（ID は固定）。
-  static const userManualPresentationIdJa =
-      '1Ii-ernIly0Wp7y_xL9BOaA5c49KEW3rwbMZ4ABeZZNI';
-  static const userManualPresentationIdEn =
-      '15xtzSqvYMOoajFl_PD9RK5ZXLRx59nipnBboESVpbU4';
-  static const userManualPresentationIdVi =
-      '1WZZLjW7V0CXLV12VXdiqt0WtrzTQGtr1LfEAOfmLc0g';
-
-  static String userManualUrlFor(String language) {
-    final id = switch (language) {
-      'en' => userManualPresentationIdEn,
-      'ja' => userManualPresentationIdJa,
-      _ => userManualPresentationIdVi,
-    };
-    return 'https://docs.google.com/presentation/d/$id/preview';
-  }
 
   @override
   State<HelpPage> createState() => _HelpPageState();
@@ -39,6 +20,9 @@ class HelpPage extends StatefulWidget {
 class _HelpPageState extends State<HelpPage> {
   String? _versionLabel;
   final _scrollController = ScrollController();
+
+  /// 開いている節（翻訳キーの id）。
+  final Set<String> _openSections = {};
 
   @override
   void initState() {
@@ -129,118 +113,42 @@ class _HelpPageState extends State<HelpPage> {
                 ),
               ),
             ),
+            const SizedBox(height: 8),
+            for (final section in _visibleSections) _card(section, lang),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              child: _HelpManualLink(
-                languageCode: lang,
-                onTap: () => launchUrl(
-                  Uri.parse(HelpPage.userManualUrlFor(lang)),
-                  mode: LaunchMode.externalApplication,
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+              child: Material(
+                color: AppColors.current.cardFill,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: AppColors.current.cardBorder),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: ListTile(
+                  key: const ValueKey('help-privacy'),
+                  leading: const Icon(
+                    Icons.privacy_tip_outlined,
+                    color: Colors.teal,
+                  ),
+                  title: Text(
+                    'プライバシー'.tr(lang),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.current.textOnCardPrimary,
+                    ),
+                  ),
+                  trailing: Icon(
+                    Icons.chevron_right_rounded,
+                    color: AppColors.current.textOnCardSecondary,
+                  ),
+                  onTap: () => Navigator.of(context).push(
+                    fullscreenDismissRoute(
+                      builder: (context) => const PrivacyPage(),
+                    ),
+                  ),
                 ),
               ),
             ),
-            _section('基本操作'.tr(lang), [
-              _HelpRow(
-                icon: CupertinoIcons.mic_fill,
-                color: Colors.orange,
-                titleKey: 'help.talk.title',
-                bodyKey: 'help.talk.body',
-                languageCode: lang,
-              ),
-              _HelpRow(
-                icon: CupertinoIcons.chat_bubble_2_fill,
-                color: Colors.blue,
-                titleKey: 'help.rally.title',
-                bodyKey: 'help.rally.body',
-                languageCode: lang,
-              ),
-              _HelpRow(
-                icon: Icons.shuffle_rounded,
-                color: Colors.amber,
-                titleKey: 'help.time.title',
-                bodyKey: 'help.time.body',
-                languageCode: lang,
-              ),
-              if (appSettings.shakeToTalkEnabled)
-                _HelpRow(
-                  icon: Icons.vibration_rounded,
-                  color: Colors.teal,
-                  titleKey: 'help.shake.title',
-                  bodyKey: 'help.shake.body',
-                  languageCode: lang,
-                ),
-            ]),
-            _section('Chromeとのやりとり'.tr(lang), [
-              _HelpRow(
-                icon: Icons.mic_rounded,
-                color: Colors.orange,
-                titleKey: 'help.chrome.step1.title',
-                bodyKey: 'help.chrome.step1.body',
-                languageCode: lang,
-              ),
-              _HelpRow(
-                icon: Icons.open_in_new_rounded,
-                color: Colors.blueAccent,
-                titleKey: 'help.chrome.step2.title',
-                bodyKey: 'help.chrome.step2.body',
-                languageCode: lang,
-              ),
-              _HelpRow(
-                icon: Icons.copy_rounded,
-                color: Colors.purple,
-                titleKey: 'help.chrome.step3.title',
-                bodyKey: 'help.chrome.step3.body',
-                languageCode: lang,
-              ),
-              _HelpRow(
-                icon: Icons.save_rounded,
-                color: Colors.green,
-                titleKey: 'help.chrome.step4.title',
-                bodyKey: 'help.chrome.step4.body',
-                languageCode: lang,
-              ),
-            ]),
-            _section('振り返り'.tr(lang), [
-              _HelpRow(
-                icon: CupertinoIcons.chart_bar_fill,
-                color: AppearanceResolver.brandBlue,
-                titleKey: 'help.dashboard.title',
-                bodyKey: 'help.dashboard.body',
-                languageCode: lang,
-              ),
-              _HelpRow(
-                icon: CupertinoIcons.book_fill,
-                color: Colors.green,
-                titleKey: 'help.diary.title',
-                bodyKey: 'help.diary.body',
-                languageCode: lang,
-              ),
-              _HelpRow(
-                icon: Icons.favorite_rounded,
-                color: Colors.pink,
-                titleKey: 'help.review.title',
-                bodyKey: 'help.review.body',
-                languageCode: lang,
-              ),
-            ]),
-            _section('データ'.tr(lang), [
-              _HelpRow(
-                icon: Icons.import_export_rounded,
-                color: Colors.indigo,
-                titleKey: 'help.backup.title',
-                bodyKey: 'help.backup.body',
-                languageCode: lang,
-              ),
-              // iCloud同期はiPhoneだけ（Androidでは設定にも出さない）。
-              if (cloudSync != null)
-                _HelpRow(
-                  icon: Icons.cloud_sync_rounded,
-                  color: Colors.lightBlue,
-                  titleKey: 'help.icloud.title',
-                  bodyKey: 'help.icloud.body',
-                  languageCode: lang,
-                ),
-            ]),
             const SizedBox(height: 24),
           ],
         ),
@@ -248,192 +156,63 @@ class _HelpPageState extends State<HelpPage> {
     );
   }
 
-  Widget _section(String title, List<Widget> children) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-          child: Text(
-            title,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppColors.current.textOnSubpageSecondary,
-            ),
-          ),
-        ),
-        ...children,
-      ],
-    );
+  /// 上から 登録 → 閲覧 → 困った時 → その他 の順。色はまとまりごとに揃える。
+  List<_HelpSection> get _visibleSections {
+    const record = Colors.orange;
+    final view = AppearanceResolver.brandBlue;
+    const trouble = Colors.purple;
+    const other = Colors.teal;
+    return [
+      const _HelpSection('talk', Icons.mic_none_rounded, record, 3),
+      const _HelpSection('rally', Icons.refresh_rounded, record, 2),
+      const _HelpSection('save', Icons.send_rounded, record, 3),
+      if (appSettings.shakeToTalkEnabled)
+        const _HelpSection('shake', Icons.vibration_rounded, record, 1),
+      _HelpSection('dashboard', Icons.show_chart_rounded, view, 3),
+      _HelpSection('read', Icons.menu_book_rounded, view, 3),
+      _HelpSection('review', Icons.favorite_rounded, view, 3),
+      const _HelpSection('copy', Icons.copy_rounded, trouble, 3),
+      const _HelpSection('howto', Icons.more_horiz_rounded, trouble, 1),
+      const _HelpSection('export', Icons.upload_outlined, trouble, 2),
+      const _HelpSection('import', Icons.download_outlined, trouble, 3),
+      // iCloud同期はiPhoneだけ（Androidでは設定にも出さない）。
+      if (cloudSync != null)
+        const _HelpSection('icloud', Icons.cloud_sync_rounded, other, 1),
+    ];
   }
-}
 
-class _HelpManualLink extends StatelessWidget {
-  const _HelpManualLink({required this.languageCode, required this.onTap});
-
-  final String languageCode;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = AppColors.current;
-    final accent = palette.scene;
-    return Material(
-      color: palette.cardFill,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        key: const Key('help_user_manual'),
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: palette.cardBorder),
-          ),
-          padding: const EdgeInsets.fromLTRB(14, 14, 12, 14),
-          child: Row(
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: accent,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.menu_book_outlined,
-                  color: palette.textOnScenePrimary,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '操作マニュアル'.tr(languageCode),
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: palette.textOnCardPrimary,
-                      ),
-                    ),
-                    Text(
-                      '図解で画面ごとの使い方を見る'.tr(languageCode),
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: accent,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(
-                Icons.open_in_new_rounded,
-                size: 18,
-                color: palette.textOnCardSecondary,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _HelpRow extends StatelessWidget {
-  const _HelpRow({
-    required this.icon,
-    required this.color,
-    required this.titleKey,
-    required this.bodyKey,
-    required this.languageCode,
-  });
-
-  final IconData icon;
-  final Color color;
-  final String titleKey;
-  final String bodyKey;
-  final String languageCode;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _card(_HelpSection section, String lang) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: color, size: 22),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  titleKey.tr(languageCode),
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: color,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          _HelpBodyText(text: bodyKey.tr(languageCode)),
-        ],
+      key: ValueKey('help-section-${section.id}'),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+      child: GenkiExpandCard(
+        title: 'help.${section.id}.title'.tr(lang),
+        icon: section.icon,
+        accent: section.accent,
+        open: _openSections.contains(section.id),
+        onToggle: () => setState(() {
+          if (!_openSections.remove(section.id)) {
+            _openSections.add(section.id);
+          }
+        }),
+        child: GenkiStepList(
+          color: section.accent,
+          steps: [
+            for (var i = 1; i <= section.stepCount; i++)
+              'help.${section.id}.$i'.tr(lang),
+          ],
+        ),
       ),
     );
   }
 }
 
-/// ヘルプ本文の描画。「%ICON%」を含む場合は、そこをコピーボタンのアイコンに
-/// 差し替えて、実際にタップしてほしいボタンの絵と一緒に説明する
-/// （osmWashabeの「お題の取り込み」画面のコピーボタン表記を踏襲）。
-class _HelpBodyText extends StatelessWidget {
-  const _HelpBodyText({required this.text});
+/// ヘルプの 1 節。文言は `help.<id>.title` と `help.<id>.1`〜。
+class _HelpSection {
+  const _HelpSection(this.id, this.icon, this.accent, this.stepCount);
 
-  static const _iconMarker = '%ICON%';
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final style = Theme.of(context).textTheme.bodyMedium?.copyWith(
-      color: AppColors.current.textOnSubpageSecondary,
-      height: 1.4,
-    );
-
-    if (!text.contains(_iconMarker)) {
-      return Text(text, style: style);
-    }
-
-    final parts = text.split(_iconMarker);
-    return Text.rich(
-      TextSpan(
-        children: [
-          for (var i = 0; i < parts.length; i++) ...[
-            TextSpan(text: parts[i]),
-            if (i != parts.length - 1)
-              WidgetSpan(
-                alignment: PlaceholderAlignment.middle,
-                child: Icon(
-                  Icons.copy_rounded,
-                  size: 16,
-                  color: AppColors.current.textOnSubpageSecondary,
-                ),
-              ),
-          ],
-        ],
-      ),
-      // Text(text, style: style)と同じ経路でスタイルを解決させ、他の項目と
-      // フォントの太さ・色が揃うようにする（TextSpan側にだけstyleを置くと、
-      // Text.rich自身のDefaultTextStyleマージ経路を通らず太さがずれていた）。
-      style: style,
-    );
-  }
+  final String id;
+  final IconData icon;
+  final Color accent;
+  final int stepCount;
 }

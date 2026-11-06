@@ -2,13 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher_platform_interface/link.dart';
-import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
 
 import 'package:osm_genki/app_globals.dart';
 import 'package:osm_genki/l10n/app_strings.dart';
 import 'package:osm_genki/screens/help_page.dart';
+import 'package:osm_genki/screens/privacy_page.dart';
+import 'package:osm_genki/screens/settings_page.dart';
 import 'package:osm_genki/services/app_preferences.dart';
+
+const _sections = {
+  'talk': 3,
+  'rally': 2,
+  'save': 3,
+  'shake': 1,
+  'dashboard': 3,
+  'read': 3,
+  'review': 3,
+  'copy': 3,
+  'howto': 1,
+  'export': 2,
+  'import': 3,
+  'icloud': 1,
+};
 
 void main() {
   setUpAll(() async {
@@ -24,75 +39,124 @@ void main() {
   });
 
   setUp(() {
-    appSettings.language = 'ja';
+    appSettings
+      ..language = 'ja'
+      ..shakeToTalkEnabled = true;
   });
 
-  test('操作マニュアルURLは言語ごとに固定のpreview先を返す', () {
-    expect(
-      HelpPage.userManualUrlFor('ja'),
-      'https://docs.google.com/presentation/d/'
-      '${HelpPage.userManualPresentationIdJa}/preview',
-    );
-    expect(
-      HelpPage.userManualUrlFor('en'),
-      'https://docs.google.com/presentation/d/'
-      '${HelpPage.userManualPresentationIdEn}/preview',
-    );
-    expect(
-      HelpPage.userManualUrlFor('vi'),
-      'https://docs.google.com/presentation/d/'
-      '${HelpPage.userManualPresentationIdVi}/preview',
-    );
-    expect(HelpPage.userManualUrlFor('fr'), HelpPage.userManualUrlFor('vi'));
+  Future<void> pump(WidgetTester tester, Widget page) async {
+    tester.view.physicalSize = const Size(1200, 12000);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(MaterialApp(home: page));
+    await tester.pumpAndSettle();
+  }
+
+  for (final lang in ['ja', 'en', 'vi']) {
+    test('$lang: 各節の文言があり、手順は 3 つまでで短い', () {
+      for (final MapEntry(key: id, value: count) in _sections.entries) {
+        expect(count, lessThanOrEqualTo(3));
+        for (final key in [
+          'help.$id.title',
+          for (var i = 1; i <= count; i++) 'help.$id.$i',
+        ]) {
+          final text = key.tr(lang);
+          expect(text, isNot(key), reason: key);
+          expect(text.length, lessThanOrEqualTo(80), reason: key);
+        }
+      }
+    });
+  }
+
+  for (final lang in ['en', 'vi']) {
+    test('$lang: 手順に日本語が混ざらない', () {
+      final japanese = RegExp(r'[぀-ヿ一-鿿]');
+      for (final MapEntry(key: id, value: count) in _sections.entries) {
+        for (final key in [
+          'help.$id.title',
+          for (var i = 1; i <= count; i++) 'help.$id.$i',
+        ]) {
+          expect(japanese.hasMatch(key.tr(lang)), isFalse, reason: key);
+        }
+      }
+    });
+
+    testWidgets('$lang: 幅 320 で全グループを開いても、はみ出さない', (tester) async {
+      appSettings
+        ..language = lang
+        ..developerModeEnabled = true;
+      addTearDown(() => appSettings.developerModeEnabled = false);
+      tester.view.physicalSize = const Size(960, 12000);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(const MaterialApp(home: SettingsPage()));
+      await tester.pumpAndSettle();
+      for (final key in ['ふだんの使い方', 'データ', '開発者向け']) {
+        await tester.tap(find.text(key.tr(lang)));
+        await tester.pumpAndSettle();
+      }
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('操作マニュアルは無く、節は閉じて始まり、開くと番号順の手順が出る', (tester) async {
+    await pump(tester, const HelpPage());
+    expect(find.byIcon(Icons.menu_book_outlined), findsNothing);
+    expect(find.text('help.talk.1'.tr('ja')), findsNothing);
+
+    final card = find.byKey(const ValueKey('help-section-talk'));
+    await tester.tap(find.text('help.talk.title'.tr('ja')));
+    await tester.pumpAndSettle();
+    for (var i = 1; i <= 3; i++) {
+      expect(
+        find.descendant(of: card, matching: find.text('$i')),
+        findsOneWidget,
+      );
+      expect(find.text('help.talk.$i'.tr('ja')), findsOneWidget);
+    }
+
+    await tester.tap(find.text('help.talk.title'.tr('ja')));
+    await tester.pumpAndSettle();
+    expect(find.text('help.talk.1'.tr('ja')), findsNothing);
   });
 
-  testWidgets('操作マニュアルをタップすると表示言語のGoogleスライドが開く', (tester) async {
-    final originalUrlLauncher = UrlLauncherPlatform.instance;
-    final fakeUrlLauncher = _FakeUrlLauncherPlatform();
-    UrlLauncherPlatform.instance = fakeUrlLauncher;
-    addTearDown(() => UrlLauncherPlatform.instance = originalUrlLauncher);
-
-    appSettings.language = 'en';
-    addTearDown(() => appSettings.language = AppPreferences.defaultLanguage);
-
-    await tester.pumpWidget(const MaterialApp(home: HelpPage()));
+  testWidgets('紹介文は短く、プライバシーはヘルプから開く', (tester) async {
+    await pump(tester, const HelpPage());
+    for (final lang in ['ja', 'en', 'vi']) {
+      expect('ヘルプ紹介文'.tr(lang).length, lessThanOrEqualTo(100));
+    }
+    await tester.tap(find.byKey(const ValueKey('help-privacy')));
     await tester.pumpAndSettle();
-
-    expect(find.text('操作マニュアル'.tr(appSettings.language)), findsOneWidget);
-
-    await tester.tap(find.byKey(const Key('help_user_manual')));
-    await tester.pumpAndSettle();
-
-    expect(fakeUrlLauncher.launchedUrls, [HelpPage.userManualUrlFor('en')]);
-    expect(HelpPage.userManualUrlFor('en'), endsWith('/preview'));
+    expect(find.byType(PrivacyPage), findsOneWidget);
   });
 
-  testWidgets('データの説明にバックアップが出て、iCloud同期はiPhone以外では出ない', (tester) async {
-    await tester.pumpWidget(const MaterialApp(home: HelpPage()));
-    await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(
-      find.text('help.backup.title'.tr('ja')),
-      200,
-      scrollable: find.byType(Scrollable).first,
-    );
-    expect(find.text('help.backup.title'.tr('ja')), findsOneWidget);
+  testWidgets('シェイクは設定がオンのときだけ、iCloud はiPhone以外で出ない', (tester) async {
+    await pump(tester, const HelpPage());
+    expect(find.text('help.shake.title'.tr('ja')), findsOneWidget);
     // テストではcloudSyncを作らない（Androidと同じ扱い）。
     expect(find.text('help.icloud.title'.tr('ja')), findsNothing);
+
+    appSettings.shakeToTalkEnabled = false;
+    await tester.pumpAndSettle();
+    expect(find.text('help.shake.title'.tr('ja')), findsNothing);
   });
-}
 
-class _FakeUrlLauncherPlatform extends UrlLauncherPlatform {
-  final List<String> launchedUrls = [];
+  testWidgets('設定: 表示言語は開いたまま、グループは閉じて始まりタップで開く', (tester) async {
+    await pump(tester, const SettingsPage());
+    expect(find.text('言語'.tr('ja')), findsOneWidget);
+    expect(find.text('ふだんの使い方'.tr('ja')), findsOneWidget);
+    expect(find.text('データ'.tr('ja')), findsOneWidget);
+    expect(find.text('タイマー音'.tr('ja')), findsNothing);
 
-  @override
-  LinkDelegate? get linkDelegate => null;
+    await tester.tap(find.text('ふだんの使い方'.tr('ja')));
+    await tester.pumpAndSettle();
+    expect(find.text('タイマー音'.tr('ja')), findsOneWidget);
+    expect(find.text('シェイクで話す'.tr('ja')), findsOneWidget);
 
-  @override
-  Future<bool> canLaunch(String url) async => true;
-
-  @override
-  Future<bool> launchUrl(String url, LaunchOptions options) async {
-    launchedUrls.add(url);
-    return true;
-  }
+    await tester.tap(find.text('データ'.tr('ja')));
+    await tester.pumpAndSettle();
+    expect(find.text('日記をエクスポート'.tr('ja')), findsOneWidget);
+    // プライバシーはヘルプへ移した。
+    expect(find.text('プライバシー'.tr('ja')), findsNothing);
+  });
 }
