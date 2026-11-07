@@ -11,6 +11,7 @@ class AppPreferences {
   static const languageKey = 'osmGenki.language';
   static const defaultLanguage = 'vi';
   static const showStartupScreenKey = 'osmGenki.showStartupScreen';
+  static const showUsageScreenKey = 'osmGenki.showUsageScreen';
 
   // osmWashabeと同じ、設定画面下端の7回タップで切り替わる開発者モード。
   static const developerModeEnabledKey = 'osmGenki.developerModeEnabled';
@@ -43,6 +44,11 @@ class AppPreferences {
 
   set showStartupScreen(bool value) =>
       _prefs.setBool(showStartupScreenKey, value);
+
+  /// スタートアップの「はじめる」後に使い方画面を出すか。未設定＝初回は true。
+  bool get showUsageScreen => _prefs.getBool(showUsageScreenKey) ?? true;
+
+  set showUsageScreen(bool value) => _prefs.setBool(showUsageScreenKey, value);
 
   bool get developerModeEnabled =>
       _prefs.getBool(developerModeEnabledKey) ?? false;

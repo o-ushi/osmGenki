@@ -18,6 +18,62 @@ abstract final class AppStrings {
   };
 
   static const _ja = <String, String>{
+    'help.talk.title': '話して録音する',
+    'help.talk.1': '録音時間を選ぶ（∞ は「フリー」）',
+    'help.talk.2': '中央のマイクをタップ。「フリー」はもう一度タップで停止',
+    'help.talk.3': '秒数を選んだときは、タップで一時停止・再開',
+    'help.rally.title': '続けて話す・やり直す',
+    'help.rally.1': '「送信」の前にマイクをタップすると、続きを足せる',
+    'help.rally.2': '「リセット」をタップすると最初から',
+    'help.save.title': '日記に保存する',
+    'help.save.1': '「送信」（飛行機）をタップ。文章をコピーして Chrome が開く',
+    'help.save.2': 'Chrome の回答をコピーしてアプリに戻る',
+    'help.save.3': '「貼り付け」をタップ',
+    'help.shake.title': '端末を振って話す',
+    'help.shake.1': '端末を振ると「話す」に移動',
+    'help.dashboard.title': '元気度の変化を見る',
+    'help.dashboard.1': '「振り返りダッシュボード」をタップ',
+    'help.dashboard.2': 'ピンチで拡大・縮小、ドラッグで移動',
+    'help.dashboard.3': 'カレンダーの日付をタップでその日の記録',
+    'help.read.title': '過去の日記を読む',
+    'help.read.1': '「ボイス日記一覧」をタップ',
+    'help.read.2': '元気度・会話力を長押しで詳細',
+    'help.read.3': '左スワイプで削除',
+    'help.review.title': '日記を診断してもらう',
+    'help.review.1': '「ボイス日記一覧」の「診断」をタップ',
+    'help.review.2': 'Chrome の回答をコピーして戻り、「貼り付け」をタップ',
+    'help.review.3': '「閲覧」で見返す',
+    'help.copy.title': 'Chrome でコピーできないとき',
+    'help.copy.1': '回答を長押し',
+    'help.copy.2': '「すべて選択」→「コピー」',
+    'help.copy.3': 'アプリに戻って「貼り付け」をタップ',
+    'help.howto.title': '操作を忘れたとき',
+    'help.howto.1': '…（その他）を長押しで、その画面の使い方',
+    'help.export.title': '日記を書き出す',
+    'help.export.1': '…（その他）をタップ',
+    'help.export.2': '「日記をエクスポート」をタップ',
+    'help.import.title': '日記を取り込む',
+    'help.import.1': '…（その他）をタップ',
+    'help.import.2': '「日記をインポート」をタップ',
+    'help.import.3': '同じ記録は重複しない',
+    'help.icloud.title': 'iPhone どうしで揃える',
+    'help.icloud.1': '設定の「iCloudで同期する」をオン',
+    'ふだんの使い方': 'ふだんの使い方',
+    'iCloud同期_スイッチ説明': '日記と設定を同じApple IDのiPhoneどうしで同期します',
+    'iCloud同期_完了': 'iCloudと同期しました。もう一方のiPhoneに届くまで、少しかかることがあります',
+    'iCloud同期_失敗_短': 'iCloudと同期できませんでした',
+    'iCloud同期': 'iCloud同期',
+    'iCloudで同期する': 'iCloudで同期する',
+    'iCloud同期_説明':
+        '日記・診断結果と、週の開始・タイマー音・シェイクで話すの設定を、同じApple IDのiPhoneどうしで同期します。表示言語・案内の表示・音声送信の同意は端末ごとです。録音した音声は同期しません。',
+    'iCloud同期_未サインイン':
+        'iCloudにサインインしていないため同期できません。設定アプリでApple IDにサインインし、iCloudをオンにしてください。',
+    'iCloud同期_最終同期': '最終同期',
+    'iCloud同期_未同期': 'まだ同期していません',
+    'iCloud同期_今すぐ同期': '今すぐ同期',
+    'iCloud同期_同期中': '同期中…',
+    'iCloud同期_失敗': 'iCloudと同期できませんでした。しばらくしてから「今すぐ同期」をお試しください。',
+    'iCloud同期_容量超過': 'データ（%@ MB）がiCloud同期の上限（1 MB）を超えているため、送れませんでした。',
     '設定': '設定',
     'その他': 'その他',
     'リセット': 'リセット',
@@ -48,7 +104,17 @@ abstract final class AppStrings {
     'はじめる': 'はじめる',
     'スタートアップ画面': 'スタートアップ画面',
     'スタートアップ画面_説明': 'アプリ起動時に案内画面を表示します',
-    '操作': '操作',
+    '使い方画面': '使い方画面',
+    '使い方画面_説明': 'AI診断（Chrome の AI モード）の使い方を表示します',
+    '使い方': '使い方',
+    '使い方_Chrome見出し': 'Chrome の AI モード（AI診断）',
+    '使い方_コピー本文':
+        'ChromeのAIモードで答えが出たら、画面の下のほうにあるコピーボタンをタップしてください。'
+        '下の画像の赤い矢印と TAP! が指している、左端の重なった2つの四角です。\n\n'
+        'このボタンを押さずにアプリへ戻ると、貼り付けできません。'
+        'コピーできたら、osmGenki？に戻ってペーストボタンを押してください。',
+    '使い方_コピー画像ラベル': 'Chrome AIモードのコピーボタン（赤い矢印と TAP!）',
+    'ホーム画面へ': 'ホーム画面へ',
     'シェイクで話す': 'シェイクで話す',
     'シェイクで話す_説明': '端末を振ると「話す」タブに切り替えます',
     '気分_最悪': 'とても元気じゃない',
@@ -60,7 +126,6 @@ abstract final class AppStrings {
     'カレンダーの週の始まりを選べます。': 'カレンダーの週の始まりを選べます。',
     '日曜始まり': '日曜始まり',
     '月曜始まり': '月曜始まり',
-    'タイマー設定': 'タイマー設定',
     'タイマー音': 'タイマー音',
     '利用できる音がありません': '利用できる音がありません',
     '通知音_なし': 'なし',
@@ -156,55 +221,7 @@ abstract final class AppStrings {
     '辛め': '辛め',
     'ヘルプ': 'ヘルプ',
     'バージョン %@ (%@)': 'バージョン %@ (%@)',
-    'ヘルプ紹介文':
-        '日本語の会話力（流暢さなど）を伸ばすアプリです。姉妹アプリosmWashabeが正解を求めずに'
-        '45〜60秒話し切ることに重きを置いているのに対して、osmGenki？は'
-        '答えを探しながら話すことに重きを置いています。'
-        '画面に出すのは元気度と会話力の目安で、Washabeのような多軸の詳細採点UIではありません。'
-        'アプリからの「元気してる？」の問い掛けに色々と思いを巡らしながら話してみてください。',
-    '基本操作': '基本操作',
-    'help.talk.title': 'タップで話す',
-    'help.talk.body':
-        '画面中央のマイクボタンをタップして話してください。'
-        'ツールバー下の「フリー」「30秒」「45秒」「60秒」から録音のしかたを選べます。\n'
-        '「フリー」はタップすると録音が始まり、もう一度タップすると録音が止まります。'
-        '秒数を選んだ場合はタップ1回で録音とカウントダウンが始まり、'
-        '0になるとチャイムが鳴って自動で止まります。'
-        'カウントダウン中にもう一度タップすると、一時停止・再開ができます。',
-    'help.rally.title': '続けて話せる',
-    'help.rally.body':
-        'マイクボタンで話した内容は、送信するまでどんどん追記されていきます。'
-        '一息で言い切れなくても、何度かに分けて話しかけても大丈夫です。'
-        'やり直したいときは、リセットボタンでいつでも最初から話せます。',
-    'help.time.title': '声かけはランダム',
-    'help.time.body':
-        'マイク画面でまだ何も話していないときに出る声かけ文は、'
-        '何パターンかの中からランダムに選ばれます。'
-        '毎回同じ言葉とは限らないので、気軽に話しかけてください。',
-    'help.shake.title': 'シェイクで話す',
-    'help.shake.body':
-        '端末を振ると「話す」タブに切り替わります。'
-        '設定の「操作」からオフにもできます。',
-    'Chromeとのやりとり': 'Chromeとのやりとり',
-    'help.chrome.step1.title': '① まずは話しかけましょう',
-    'help.chrome.step1.body':
-        'マイクのボタンをタップして、今日あったことを話してください。'
-        '話し終わったら、もう一度タップすれば録音が止まります。',
-    'help.chrome.step2.title': '② 飛行機ボタンを押すとChromeが開きます',
-    'help.chrome.step2.body':
-        '話した内容がまとまったら、下にある飛行機ボタンを押してください。'
-        '文章が自動でコピーされて、Chromeというアプリが開きます。'
-        'そこでAI（人工知能）が、元気度と会話力（流暢さなどの目安）を考えてくれます。',
-    'help.chrome.step3.title': '③ 答えが出たらコピーしましょう',
-    'help.chrome.step3.body':
-        'Chromeの画面に答えが出てきたら、回答の下にあるコピーボタン（%ICON%）をタップしてコピーしてください。\n'
-        'ボタンが見つからない・反応しない場合は、回答を長押し→「すべて選択」→「コピー」でも大丈夫です。\n'
-        'コピーできたら、このアプリに戻ってきてください。',
-    'help.chrome.step4.title': '④ ペーストボタンで保存しましょう',
-    'help.chrome.step4.body':
-        'アプリに戻ったら、下にあるペーストボタンを押してください。'
-        'コピーした答えを読み取って、すぐに日記に記録されます。',
-    '振り返り': '振り返り',
+    'ヘルプ紹介文': '答えを探しながら話して、日本語の会話力を伸ばすアプリです。',
     '日記をエクスポート': '日記をエクスポート',
     'エクスポートに失敗しました': 'エクスポートに失敗しました',
     'エクスポートする日記がありません': 'エクスポートする日記がありません',
@@ -222,7 +239,8 @@ abstract final class AppStrings {
     'インポート失敗_メッセージ': 'ファイルの読み込みに失敗しました: %@',
     'OK': 'OK',
     '初期化_説明': '端末内のすべてのデータ（日記・診断結果・録音・設定など）を削除し、初めてインストールした状態に戻します。',
-    '初期化_確認': '端末内のすべてのデータ（日記・診断結果・録音・設定など）を削除し、初めてインストールした状態に戻します。この操作は取り消せません。',
+    '初期化_確認':
+        '端末内のすべてのデータ（日記・診断結果・録音・設定など）を削除し、初めてインストールした状態に戻します。この操作は取り消せません。',
     '初期化しますか？': 'すべてのデータを初期化しますか？',
     '初期化しました': 'すべてのデータを初期化しました',
     'キャンセル': 'キャンセル',
@@ -231,22 +249,6 @@ abstract final class AppStrings {
     '削除しますか？': '削除しますか？',
     '日記削除_確認': 'この日記を削除します。この操作は取り消せません。',
     '削除': '削除',
-    'help.dashboard.title': 'ダッシュボード',
-    'help.dashboard.body':
-        '右上のグラフアイコンから、元気度と会話力評点の推移をカレンダーと折れ線グラフで確認できます。'
-        '記録が複数あるときは最初に全期間を表示します。'
-        'グラフはピンチで拡大・縮小し、ドラッグで左右に動かせます。',
-    'help.diary.title': 'ボイス日記',
-    'help.diary.body':
-        'Chromeとのやりとりが終わって貼り付けると、元気度・会話力評点つきの日記として'
-        'この端末に保存されます。過去の記録は一覧からいつでも読み返せます。',
-    'help.review.title': '日記を見てもらう',
-    'help.review.body':
-        'ボイス日記一覧の上部にある「診断」ボタンから、'
-        'これまでの記録をもとに、Chromeでアドバイスをもらえます。'
-        'Chromeでアドバイスをコピーして貼り付けボタンを押すと保存され、その場で読めます。'
-        '保存した結果は「閲覧」ボタンからいつでも見返せます。'
-        'アプリの表示言語で答えてくれます。',
     '開発者モードを有効にしました': '開発者モードを有効にしました',
     '開発者モードを無効にしました': '開発者モードを無効にしました',
     '開発者向け': '開発者向け',
@@ -305,8 +307,7 @@ abstract final class AppStrings {
         '録音した音声を、OSに搭載された音声認識サービスへ送信します。目的は発話の文字起こしです。初めて利用する前に同意を確認し、同意しない場合も音声認識を使わない機能は利用できます。Appleの規約・プライバシーポリシーが適用されます。',
     'Privacy_音声認識説明_Android':
         '録音した音声を、OSに搭載された音声認識サービス、もしくはVosk（端末内のオフラインモデル）へ送信します。目的は、発話の文字起こしです。初めて利用する前に同意を確認し、同意しない場合も音声認識を使わない機能は利用できます。',
-    'Privacy_設定への案内':
-        '表示言語やシェイクで話すなどの操作設定は、設定画面から変更できます。',
+    'Privacy_設定への案内': '表示言語やシェイクで話すなどの操作設定は、設定画面から変更できます。',
     'Privacy_Google説明':
         '発話解析または日記傾向の診断を実行するたびに、Google LLCへの送信内容と目的を表示して同意を確認します。拒否した場合はクリップボードへのコピーもブラウザ起動も行いません。',
     'Privacy_保存削除説明':
@@ -320,6 +321,66 @@ abstract final class AppStrings {
   };
 
   static const _en = <String, String>{
+    'help.talk.title': 'Record your voice',
+    'help.talk.1': 'Choose a duration (∞ is "Free")',
+    'help.talk.2': 'Tap the mic in the center. In "Free", tap again to stop',
+    'help.talk.3': 'With a set time, tap to pause or resume',
+    'help.rally.title': 'Add more or start over',
+    'help.rally.1': 'Tap the mic before "Send" to add more',
+    'help.rally.2': 'Tap "Reset" to start over',
+    'help.save.title': 'Save to your diary',
+    'help.save.1':
+        'Tap "Send" (the airplane). The text is copied and Chrome opens',
+    'help.save.2': 'Copy the answer in Chrome and return to the app',
+    'help.save.3': 'Tap "Paste"',
+    'help.shake.title': 'Shake to talk',
+    'help.shake.1': 'Shake the device to go to "Talk"',
+    'help.dashboard.title': 'See how your scores change',
+    'help.dashboard.1': 'Tap "Reflection Dashboard"',
+    'help.dashboard.2': 'Pinch to zoom, drag to move',
+    'help.dashboard.3': 'Tap a date on the calendar for that day\'s record',
+    'help.read.title': 'Read past diaries',
+    'help.read.1': 'Tap "Voice Diary List"',
+    'help.read.2': 'Long-press a score for details',
+    'help.read.3': 'Swipe left to delete',
+    'help.review.title': 'Get advice on your diary',
+    'help.review.1': 'In "Voice Diary List", tap "Diagnose"',
+    'help.review.2': 'Copy the answer in Chrome, return and tap "Paste"',
+    'help.review.3': 'Tap "View" to read it again',
+    'help.copy.title': 'When you can\'t copy in Chrome',
+    'help.copy.1': 'Long-press the answer',
+    'help.copy.2': '"Select all" → "Copy"',
+    'help.copy.3': 'Return to the app and tap "Paste"',
+    'help.howto.title': 'When you forget how',
+    'help.howto.1': 'Long-press … (More) for how to use that screen',
+    'help.export.title': 'Export your diary',
+    'help.export.1': 'Tap … (More)',
+    'help.export.2': 'Tap "Export diary"',
+    'help.import.title': 'Import a diary',
+    'help.import.1': 'Tap … (More)',
+    'help.import.2': 'Tap "Import diary"',
+    'help.import.3': 'The same records are not added twice',
+    'help.icloud.title': 'Keep iPhones in sync',
+    'help.icloud.1': 'Turn on "Sync with iCloud" in Settings',
+    'ふだんの使い方': 'Everyday use',
+    'iCloud同期_スイッチ説明': 'Sync your diary and settings across your iPhones',
+    'iCloud同期_完了':
+        'Synced with iCloud. It may take a little while to reach your other iPhone',
+    'iCloud同期_失敗_短': 'Could not sync with iCloud',
+    'iCloud同期': 'iCloud sync',
+    'iCloudで同期する': 'Sync with iCloud',
+    'iCloud同期_説明':
+        'Syncs your diary, review results, and settings such as week start, timer sound, and shake to talk across iPhones signed in to the same Apple ID. Display language, onboarding screens, and voice-sending consent stay on each device. Recordings are not synced.',
+    'iCloud同期_未サインイン':
+        'You are not signed in to iCloud, so sync is unavailable. Sign in with your Apple ID in the Settings app and turn on iCloud.',
+    'iCloud同期_最終同期': 'Last synced',
+    'iCloud同期_未同期': 'Not synced yet',
+    'iCloud同期_今すぐ同期': 'Sync now',
+    'iCloud同期_同期中': 'Syncing…',
+    'iCloud同期_失敗':
+        'Could not sync with iCloud. Please try "Sync now" again later.',
+    'iCloud同期_容量超過':
+        'Your data (%@ MB) exceeds the iCloud sync limit (1 MB), so it was not sent.',
     '設定': 'Settings',
     'その他': 'More',
     'リセット': 'Reset',
@@ -329,36 +390,41 @@ abstract final class AppStrings {
         'to the start. This cannot be undone.',
     '言語': 'Language',
     'アプリの表示言語を変更できます。': 'You can change the app display language.',
-    'スタートアップ_説明':
-        'Put into words what you’re feeling\nand thinking right now.',
+    'スタートアップ_説明': 'Put into words what you’re feeling\nand thinking right now.',
     '起動_操作ヒント_前': 'Long-press the ',
     '起動_操作ヒント_後': ' button on any screen\nto see how to use it',
     'ヘルプ_録音_手順1': '1️⃣ Choose a recording duration',
     'ヘルプ_録音_手順2': '2️⃣ Tap the {{icon}} button to start recording',
     'ヘルプ_録音_手順3': '3️⃣ End the recording',
     'ヘルプ_録音_手順3a': '♾️ Tap the {{icon}} button again',
-    'ヘルプ_録音_手順3b':
-        '30/45/60 Stops automatically when the timer hits zero',
+    'ヘルプ_録音_手順3b': '30/45/60 Stops automatically when the timer hits zero',
     'ヘルプ_録音_手順4': '4️⃣ Tap the {{icon}} button for an AI check',
-    'ヘルプ_録音_手順5':
-        '5️⃣ Copy the result and paste it to save it in your diary',
+    'ヘルプ_録音_手順5': '5️⃣ Copy the result and paste it to save it in your diary',
     'ヘルプ_ダッシュボード_見出しグラフ': '<Graph>',
     'ヘルプ_ダッシュボード_グラフ1': 'Conversation skill and Genki score over time',
     'ヘルプ_ダッシュボード_グラフ2': 'Swipe to move',
     'ヘルプ_ダッシュボード_グラフ3': 'Pinch to zoom in/out',
     'ヘルプ_ダッシュボード_見出しカレンダー': '<Calendar>',
     'ヘルプ_ダッシュボード_カレンダー1': 'Tap a date to see that day’s record',
-    'ヘルプ_日記_手順1':
-        'Long-press the Genki score/conversation skill for details',
-    'ヘルプ_日記_手順2':
-        'Tap the {{icon}} button to have AI review your diary so far',
-    'ヘルプ_日記_手順3':
-        'Copy the result and paste it to save it as a diary review',
+    'ヘルプ_日記_手順1': 'Long-press the Genki score/conversation skill for details',
+    'ヘルプ_日記_手順2': 'Tap the {{icon}} button to have AI review your diary so far',
+    'ヘルプ_日記_手順3': 'Copy the result and paste it to save it as a diary review',
     '次回から表示しない': "Don't show again",
     'はじめる': 'Get started',
     'スタートアップ画面': 'Startup screen',
     'スタートアップ画面_説明': 'Show the welcome screen when the app launches',
-    '操作': 'Controls',
+    '使い方画面': 'How-to screen',
+    '使い方画面_説明': 'Show how to use Chrome AI Mode (AI analysis)',
+    '使い方': 'How to use',
+    '使い方_Chrome見出し': 'Chrome AI Mode (AI analysis)',
+    '使い方_コピー本文':
+        'When Chrome’s AI Mode shows an answer, tap the Copy button near the '
+        'bottom of the screen — the leftmost icon of two overlapping squares, '
+        'marked TAP! with a red arrow.\n\n'
+        'If you skip this and return to the app, you won’t be able to paste. '
+        'After copying, come back to osmGenki？ and tap the Paste button.',
+    '使い方_コピー画像ラベル': 'Copy button in Chrome AI Mode (red arrow and TAP!)',
+    'ホーム画面へ': 'Go to Home',
     'シェイクで話す': 'Shake to talk',
     'シェイクで話す_説明': 'Shake the device to switch to the Talk tab',
     '気分_最悪': 'Not feeling well at all',
@@ -370,7 +436,6 @@ abstract final class AppStrings {
     'カレンダーの週の始まりを選べます。': 'Choose which day the calendar week starts on.',
     '日曜始まり': 'Sunday',
     '月曜始まり': 'Monday',
-    'タイマー設定': 'Timer settings',
     'タイマー音': 'Timer sound',
     '利用できる音がありません': 'No sounds available',
     '通知音_なし': 'None',
@@ -475,60 +540,7 @@ abstract final class AppStrings {
     'ヘルプ': 'Help',
     'バージョン %@ (%@)': 'Version %@ (%@)',
     'ヘルプ紹介文':
-        'An app to help you build Japanese conversation skill (such as fluency). '
-        'While its sister app osmWashabe focuses on speaking for 45-60 '
-        'seconds straight without worrying about a "correct" answer, '
-        'osmGenki? focuses on speaking while you search for an answer. '
-        'What you see here is an energy score and a conversation-skill guide — '
-        'not Washabe\'s full multi-axis scoring UI. '
-        'Try talking it through as different thoughts come to mind, '
-        'in response to the app\'s question, "How are you feeling?"',
-    '基本操作': 'Basics',
-    'help.talk.title': 'Tap to talk',
-    'help.talk.body':
-        'Tap the mic button in the center to talk. '
-        'Choose how recording works from "Free", "30 sec", "45 sec", or "60 sec" '
-        'below the toolbar.\n'
-        '"Free" starts recording when you tap it, and stops when you tap it '
-        'again. '
-        'Pick a duration instead and a single tap starts recording with a '
-        'countdown; it chimes and stops automatically at zero. '
-        'Tap again during the countdown to pause or resume.',
-    'help.rally.title': 'Keep adding to what you say',
-    'help.rally.body':
-        'Whatever you say into the mic keeps getting appended until you send it. '
-        "It's fine to speak in a few separate takes instead of all at once. "
-        'Want to start over? The reset button clears everything at any time.',
-    'help.time.title': 'Prompts are random',
-    'help.time.body':
-        "The prompt shown on the mic screen before you've said anything is "
-        "picked randomly from several options each time, so it won't always "
-        'be the same — just talk about whatever comes up.',
-    'help.shake.title': 'Shake to talk',
-    'help.shake.body':
-        'Shake the device to switch to the Talk tab. '
-        'You can turn this off under Controls in Settings.',
-    'Chromeとのやりとり': 'Working with Chrome AI',
-    'help.chrome.step1.title': '① Talk into the mic first',
-    'help.chrome.step1.body':
-        'Tap the mic button and talk about your day. '
-        'Tap it again when you\'re done, and the recording stops.',
-    'help.chrome.step2.title': '② Tap the airplane button to open Chrome',
-    'help.chrome.step2.body':
-        'Once your words are ready, tap the airplane button below. '
-        'The text is copied automatically and Chrome opens for you. '
-        'That\'s where the AI figures out your energy score and conversation '
-        'skill (a fluency-oriented guide).',
-    'help.chrome.step3.title': '③ Copy the answer when it appears',
-    'help.chrome.step3.body':
-        'When Chrome shows an answer, tap the copy button (%ICON%) below it to copy the text.\n'
-        "If you can't find it or it doesn't respond, press and hold the answer → \"Select All\" → \"Copy\" instead.\n"
-        'Once copied, come back to this app.',
-    'help.chrome.step4.title': '④ Tap the paste button to save',
-    'help.chrome.step4.body':
-        'Back in the app, tap the paste button below. '
-        'It reads the copied answer and saves it to your diary right away.',
-    '振り返り': 'Reflection',
+        'An app that builds your Japanese conversation skill as you talk while searching for an answer.',
     '日記をエクスポート': 'Export diary',
     'エクスポートに失敗しました': 'Export failed',
     'エクスポートする日記がありません': 'No diary entries to export',
@@ -566,24 +578,6 @@ abstract final class AppStrings {
     '削除しますか？': 'Delete this entry?',
     '日記削除_確認': 'This diary entry will be deleted. This cannot be undone.',
     '削除': 'Delete',
-    'help.dashboard.title': 'Dashboard',
-    'help.dashboard.body':
-        'Tap the chart icon to see your energy and conversation skill score '
-        'trends on a calendar and line graph. With multiple entries, the graph '
-        'starts by showing your full history. Pinch to zoom in or out, and '
-        'drag to scroll left or right.',
-    'help.diary.title': 'Voice diary',
-    'help.diary.body':
-        'Once you paste the result back from Chrome, it\'s saved on your '
-        'device as a diary entry with your energy and conversation skill '
-        'score. You can look back at past entries from the list anytime.',
-    'help.review.title': 'Get advice on my diary',
-    'help.review.body':
-        'Tap "Diagnose" at the top of the voice diary list to get advice '
-        'based on your record so far in Chrome. '
-        'Copy the advice in Chrome and tap the paste button to save it and '
-        'read it right away. You can revisit saved results anytime from '
-        '"View". It answers in your app\'s display language.',
     '開発者モードを有効にしました': 'Developer mode enabled',
     '開発者モードを無効にしました': 'Developer mode disabled',
     '開発者向け': 'Developer',
@@ -666,6 +660,67 @@ abstract final class AppStrings {
   };
 
   static const _vi = <String, String>{
+    'help.talk.title': 'Ghi âm giọng nói',
+    'help.talk.1': 'Chọn thời lượng (∞ là "Tự do")',
+    'help.talk.2': 'Chạm micrô ở giữa. Với "Tự do", chạm lại để dừng',
+    'help.talk.3': 'Khi chọn số giây, chạm để tạm dừng hoặc tiếp tục',
+    'help.rally.title': 'Nói tiếp hoặc làm lại',
+    'help.rally.1': 'Chạm micrô trước khi "Gửi" để nói thêm',
+    'help.rally.2': 'Chạm "Đặt lại" để làm lại từ đầu',
+    'help.save.title': 'Lưu vào nhật ký',
+    'help.save.1':
+        'Chạm "Gửi" (máy bay). Văn bản được sao chép và Chrome mở ra',
+    'help.save.2': 'Sao chép câu trả lời trong Chrome rồi quay lại ứng dụng',
+    'help.save.3': 'Chạm "Dán"',
+    'help.shake.title': 'Lắc để nói',
+    'help.shake.1': 'Lắc máy để chuyển đến "Nói chuyện"',
+    'help.dashboard.title': 'Xem điểm số thay đổi',
+    'help.dashboard.1': 'Chạm "Bảng nhìn lại"',
+    'help.dashboard.2': 'Chụm để phóng to, thu nhỏ, kéo để di chuyển',
+    'help.dashboard.3': 'Chạm một ngày trên lịch để xem ghi chép ngày đó',
+    'help.read.title': 'Đọc nhật ký cũ',
+    'help.read.1': 'Chạm "Danh sách nhật ký giọng nói"',
+    'help.read.2': 'Nhấn giữ điểm số để xem chi tiết',
+    'help.read.3': 'Vuốt sang trái để xóa',
+    'help.review.title': 'Nhờ xem nhật ký',
+    'help.review.1': 'Trong "Danh sách nhật ký giọng nói", chạm "Chẩn đoán"',
+    'help.review.2':
+        'Sao chép câu trả lời trong Chrome, quay lại rồi chạm "Dán"',
+    'help.review.3': 'Chạm "Xem" để xem lại',
+    'help.copy.title': 'Khi không sao chép được trong Chrome',
+    'help.copy.1': 'Nhấn giữ câu trả lời',
+    'help.copy.2': '"Chọn tất cả" → "Sao chép"',
+    'help.copy.3': 'Quay lại ứng dụng rồi chạm "Dán"',
+    'help.howto.title': 'Khi quên cách dùng',
+    'help.howto.1': 'Nhấn giữ … (Khác) để xem cách dùng màn hình đó',
+    'help.export.title': 'Xuất nhật ký',
+    'help.export.1': 'Chạm … (Khác)',
+    'help.export.2': 'Chạm "Xuất nhật ký"',
+    'help.import.title': 'Nhập nhật ký',
+    'help.import.1': 'Chạm … (Khác)',
+    'help.import.2': 'Chạm "Nhập nhật ký"',
+    'help.import.3': 'Ghi chép giống nhau không bị thêm hai lần',
+    'help.icloud.title': 'Đồng bộ giữa các iPhone',
+    'help.icloud.1': 'Bật "Đồng bộ bằng iCloud" trong Cài đặt',
+    'ふだんの使い方': 'Sử dụng hằng ngày',
+    'iCloud同期_スイッチ説明': 'Đồng bộ nhật ký và cài đặt giữa các iPhone của bạn',
+    'iCloud同期_完了':
+        'Đã đồng bộ với iCloud. Có thể mất một lúc để dữ liệu đến iPhone còn lại',
+    'iCloud同期_失敗_短': 'Không thể đồng bộ với iCloud',
+    'iCloud同期': 'Đồng bộ iCloud',
+    'iCloudで同期する': 'Đồng bộ bằng iCloud',
+    'iCloud同期_説明':
+        'Đồng bộ nhật ký, kết quả nhận xét và các cài đặt như ngày bắt đầu tuần, âm hẹn giờ, lắc để nói giữa các iPhone dùng cùng Apple ID. Ngôn ngữ hiển thị, màn hình hướng dẫn và sự đồng ý gửi giọng nói được giữ riêng trên từng thiết bị. Bản ghi âm không được đồng bộ.',
+    'iCloud同期_未サインイン':
+        'Bạn chưa đăng nhập iCloud nên không thể đồng bộ. Hãy đăng nhập Apple ID trong ứng dụng Cài đặt và bật iCloud.',
+    'iCloud同期_最終同期': 'Lần đồng bộ gần nhất',
+    'iCloud同期_未同期': 'Chưa đồng bộ',
+    'iCloud同期_今すぐ同期': 'Đồng bộ ngay',
+    'iCloud同期_同期中': 'Đang đồng bộ…',
+    'iCloud同期_失敗':
+        'Không thể đồng bộ với iCloud. Vui lòng thử lại "Đồng bộ ngay" sau ít phút.',
+    'iCloud同期_容量超過':
+        'Dữ liệu (%@ MB) vượt quá giới hạn đồng bộ iCloud (1 MB) nên chưa được gửi.',
     '設定': 'Cài đặt',
     'その他': 'Khác',
     'リセット': 'Đặt lại',
@@ -701,7 +756,18 @@ abstract final class AppStrings {
     'はじめる': 'Bắt đầu',
     'スタートアップ画面': 'Màn hình khởi động',
     'スタートアップ画面_説明': 'Hiện màn hình hướng dẫn khi mở ứng dụng',
-    '操作': 'Thao tác',
+    '使い方画面': 'Màn hình cách dùng',
+    '使い方画面_説明': 'Hiện cách dùng AI Mode của Chrome (phân tích bằng AI)',
+    '使い方': 'Cách dùng',
+    '使い方_Chrome見出し': 'AI Mode của Chrome (phân tích bằng AI)',
+    '使い方_コピー本文':
+        'Khi AI Mode của Chrome hiện câu trả lời, hãy chạm nút Sao chép ở phía '
+        'dưới màn hình — biểu tượng ngoài cùng bên trái gồm hai hình vuông chồng '
+        'lên nhau, có mũi tên đỏ và chữ TAP!.\n\n'
+        'Nếu quay lại ứng dụng mà chưa chạm nút này, bạn sẽ không dán được. '
+        'Sau khi sao chép, hãy quay lại osmGenki？ và chạm nút Dán.',
+    '使い方_コピー画像ラベル': 'Nút sao chép trong Chrome AI Mode (mũi tên đỏ và TAP!)',
+    'ホーム画面へ': 'Về màn hình chính',
     'シェイクで話す': 'Lắc để nói',
     'シェイクで話す_説明': 'Lắc thiết bị để chuyển sang tab Nói',
     '気分_最悪': 'Không khỏe chút nào',
@@ -713,7 +779,6 @@ abstract final class AppStrings {
     'カレンダーの週の始まりを選べます。': 'Chọn ngày bắt đầu tuần cho lịch.',
     '日曜始まり': 'Chủ Nhật',
     '月曜始まり': 'Thứ Hai',
-    'タイマー設定': 'Cài đặt hẹn giờ',
     'タイマー音': 'Âm hẹn giờ',
     '利用できる音がありません': 'Không có âm thanh nào',
     '通知音_なし': 'Không',
@@ -817,58 +882,7 @@ abstract final class AppStrings {
     'ヘルプ': 'Trợ giúp',
     'バージョン %@ (%@)': 'Phiên bản %@ (%@)',
     'ヘルプ紹介文':
-        'Ứng dụng giúp cải thiện khả năng hội thoại tiếng Nhật (độ trôi chảy…). '
-        'Trong khi ứng dụng chị em osmWashabe chú trọng việc nói liên tục '
-        '45-60 giây mà không cần tìm câu trả lời "đúng", thì osmGenki? '
-        'chú trọng việc vừa nói vừa tìm câu trả lời. '
-        'Những gì bạn thấy là mức năng lượng và gợi ý khả năng hội thoại — '
-        'không phải giao diện chấm điểm nhiều trục đầy đủ như Washabe. '
-        'Hãy thử vừa để nhiều suy nghĩ hiện lên vừa nói chuyện, '
-        'trả lời câu hỏi "Bạn cảm thấy thế nào?" từ ứng dụng nhé.',
-    '基本操作': 'Cơ bản',
-    'help.talk.title': 'Chạm để nói',
-    'help.talk.body':
-        'Chạm nút mic ở giữa màn hình để nói chuyện. '
-        'Chọn cách ghi âm từ "Tự do", "30 giây", "45 giây" hoặc "60 giây" '
-        'bên dưới thanh công cụ.\n'
-        '"Tự do" sẽ bắt đầu ghi âm khi bạn chạm, và dừng khi bạn chạm lại. '
-        'Nếu chọn số giây, chỉ cần chạm 1 lần là bắt đầu ghi âm và đếm '
-        'ngược; chuông sẽ reo và tự dừng khi về 0. '
-        'Chạm lại trong lúc đếm ngược để tạm dừng hoặc tiếp tục.',
-    'help.rally.title': 'Có thể nói tiếp',
-    'help.rally.body':
-        'Những gì bạn nói vào mic sẽ được nối tiếp cho đến khi bạn gửi đi. '
-        'Không cần nói hết trong một lần, có thể chia làm nhiều lượt. '
-        'Muốn nói lại từ đầu? Nút đặt lại sẽ xóa hết bất cứ lúc nào.',
-    'help.time.title': 'Lời gợi ý ngẫu nhiên',
-    'help.time.body':
-        'Câu gợi ý hiện trên màn hình mic khi bạn chưa nói gì sẽ được chọn '
-        'ngẫu nhiên trong nhiều mẫu khác nhau mỗi lần, không cố định, '
-        'cứ thoải mái nói chuyện nhé.',
-    'help.shake.title': 'Lắc để nói',
-    'help.shake.body':
-        'Lắc thiết bị để chuyển sang tab Nói. '
-        'Bạn có thể tắt trong Cài đặt → Thao tác.',
-    'Chromeとのやりとり': 'Trao đổi với Chrome AI',
-    'help.chrome.step1.title': '① Trước tiên, hãy nói vào mic',
-    'help.chrome.step1.body':
-        'Chạm nút mic và kể về ngày hôm nay của bạn. '
-        'Khi nói xong, chạm lại để dừng ghi âm.',
-    'help.chrome.step2.title': '② Bấm nút máy bay để mở Chrome',
-    'help.chrome.step2.body':
-        'Khi nội dung đã sẵn sàng, bấm nút máy bay bên dưới. '
-        'Văn bản sẽ được tự động sao chép và Chrome sẽ mở ra. '
-        'Ở đó, AI sẽ tính ra mức năng lượng và khả năng hội thoại (độ trôi chảy…) của bạn.',
-    'help.chrome.step3.title': '③ Sao chép câu trả lời khi nó hiện ra',
-    'help.chrome.step3.body':
-        'Khi Chrome hiển thị câu trả lời, hãy bấm nút sao chép (%ICON%) bên dưới để sao chép văn bản.\n'
-        'Nếu không thấy nút hoặc nút không phản hồi, hãy nhấn giữ câu trả lời → "Chọn tất cả" → "Sao chép" thay thế.\n'
-        'Sao chép xong thì quay lại ứng dụng này nhé.',
-    'help.chrome.step4.title': '④ Bấm nút dán để lưu lại',
-    'help.chrome.step4.body':
-        'Quay lại ứng dụng, hãy bấm nút dán bên dưới. '
-        'Nó sẽ đọc câu trả lời đã sao chép và lưu ngay vào nhật ký của bạn.',
-    '振り返り': 'Nhìn lại',
+        'Ứng dụng giúp cải thiện khả năng hội thoại tiếng Nhật khi bạn vừa nói vừa tìm câu trả lời.',
     '日記をエクスポート': 'Xuất nhật ký',
     'エクスポートに失敗しました': 'Xuất thất bại',
     'エクスポートする日記がありません': 'Không có mục nhật ký để xuất',
@@ -906,24 +920,6 @@ abstract final class AppStrings {
     '削除しますか？': 'Xóa mục này?',
     '日記削除_確認': 'Nhật ký này sẽ bị xóa. Không thể hoàn tác.',
     '削除': 'Xóa',
-    'help.dashboard.title': 'Bảng điều khiển',
-    'help.dashboard.body':
-        'Chạm biểu tượng biểu đồ để xem xu hướng năng lượng và điểm khả năng '
-        'hội thoại trên lịch và đồ thị. Khi có nhiều mục ghi, biểu đồ ban '
-        'đầu hiển thị toàn bộ lịch sử. Chụm hai ngón để phóng to hoặc thu '
-        'nhỏ, và kéo để cuộn trái phải.',
-    'help.diary.title': 'Nhật ký giọng nói',
-    'help.diary.body':
-        'Sau khi dán kết quả từ Chrome, nó sẽ được lưu trên thiết bị dưới '
-        'dạng nhật ký kèm năng lượng và điểm khả năng hội thoại. '
-        'Bạn có thể xem lại các mục cũ từ danh sách bất cứ lúc nào.',
-    'help.review.title': 'Xin lời khuyên về nhật ký',
-    'help.review.body':
-        'Nhấn nút "Chẩn đoán" ở đầu danh sách nhật ký giọng nói để nhận '
-        'lời khuyên dựa trên các ghi chép từ trước đến nay trong Chrome. '
-        'Sao chép lời khuyên trong Chrome rồi bấm nút dán để lưu lại và '
-        'đọc ngay. Bạn có thể xem lại các kết quả đã lưu bất cứ lúc nào '
-        'từ nút "Xem". Câu trả lời sẽ theo ngôn ngữ hiển thị của ứng dụng.',
     '開発者モードを有効にしました': 'Đã bật chế độ nhà phát triển',
     '開発者モードを無効にしました': 'Đã tắt chế độ nhà phát triển',
     '開発者向け': 'Dành cho nhà phát triển',

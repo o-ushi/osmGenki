@@ -14,6 +14,12 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>ja</string>
+		<string>en</string>
+		<string>vi</string>
+	</array>
 	<key>CFBundleName</key>
 	<string>osm_genki</string>
 	<key>CFBundlePackageType</key>
@@ -24,18 +30,12 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
-	<key>CFBundleLocalizations</key>
-	<array>
-		<string>ja</string>
-		<string>en</string>
-		<string>vi</string>
-	</array>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>googlechromes</string>
 	</array>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Records your speech so you can review it and convert it to diary text.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
@@ -52,7 +52,7 @@
 					<key>UISceneClassName</key>
 					<string>UIWindowScene</string>
 					<key>UISceneConfigurationName</key>
-					<string>flutter</string>
+					<string>com.osamushikubo.osmGenki.scene</string>
 					<key>UISceneDelegateClassName</key>
 					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
 					<key>UISceneStoryboardFile</key>
@@ -67,6 +67,8 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleLightContent</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

@@ -25,13 +25,19 @@ class DiaryListPage extends StatefulWidget {
   State<DiaryListPage> createState() => _DiaryListPageState();
 }
 
-class _DiaryListPageState extends State<DiaryListPage> {
+class _DiaryListPageState extends State<DiaryListPage>
+    with WidgetsBindingObserver {
   late Future<List<DiaryEntry>> _entriesFuture;
   late Future<List<DiaryReview>> _reviewsFuture;
 
   /// 「日記を見てもらう」の結果貼り付け待ちかどうか（送信/貼り付けの2状態トグル、
   /// main.dartの会話送信フローと同じ方式）。
   bool _awaitingReviewPaste = false;
+
+  /// Chromeへ送るためにコピーしたプロンプト（[_awaitingReviewPaste]中のみ保持）。
+  /// アプリ復帰時の自動貼り付けで、AIの回答をまだコピーしていないのに
+  /// 送信済みプロンプトをそのまま結果として保存してしまうのを防ぐために使う。
+  String? _pendingSentReviewPrompt;
 
   /// このページがChromeキープアライブを開始したか（main.dartと同じ、参照
   /// カウント付きBackgroundAudioKeeperの所有権フラグ）。
@@ -40,6 +46,7 @@ class _DiaryListPageState extends State<DiaryListPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _reload();
     appSettings.addListener(_onSettingsChanged);
     DiaryStorage.changes.addListener(_onDiaryChanged);
@@ -48,11 +55,26 @@ class _DiaryListPageState extends State<DiaryListPage> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     appSettings.removeListener(_onSettingsChanged);
     DiaryStorage.changes.removeListener(_onDiaryChanged);
     DiaryReviewStorage.changes.removeListener(_onReviewsChanged);
     _stopReviewKeepAliveIfOwned();
     super.dispose();
+  }
+
+  /// Chromeから戻ってアプリが復帰した直後、貼り付け待ちならクリップボードを
+  /// 自動で読み取って保存する（home_page.dartの会話送信フローと同じ方式）。
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    if (!_awaitingReviewPaste) return;
+
+    // 復帰直後は UI を先に描画してから読み取る。
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_awaitingReviewPaste) return;
+      unawaited(_pasteDiaryReviewResult(context, silentIfUnchanged: true));
+    });
   }
 
   Future<void> _ensureKeepAliveForReview() async {
@@ -94,15 +116,34 @@ class _DiaryListPageState extends State<DiaryListPage> {
       onAcquireKeepAlive: _ensureKeepAliveForReview,
     );
     if (!mounted || !opened) return;
-    setState(() => _awaitingReviewPaste = true);
+    setState(() {
+      _awaitingReviewPaste = true;
+      _pendingSentReviewPrompt = prompt;
+    });
   }
 
-  /// 「貼り付け」タップ時の処理。クリップボードの内容をアドバイスとして保存し、
-  /// そのまま表示する（数値抽出などは行わない読み物としてそのまま[DiaryReviewStorage]へ）。
-  Future<void> _pasteDiaryReviewResult(BuildContext context) async {
+  /// 「貼り付け」タップ時（またはChromeから戻ってアプリが復帰した直後）の処理。
+  /// クリップボードの内容をアドバイスとして保存し、そのまま表示する
+  /// （数値抽出などは行わない読み物としてそのまま[DiaryReviewStorage]へ）。
+  /// まだAIの回答をコピーしておらずクリップボードが送信済みプロンプトのままの
+  /// 場合は、誤って保存しないよう何もしない（自動貼り付けが早すぎたときの保険）。
+  Future<void> _pasteDiaryReviewResult(
+    BuildContext context, {
+    bool silentIfUnchanged = false,
+  }) async {
     final lang = appSettings.language;
     final text = await ChromeAiRoundTrip.readClipboardText();
     if (!context.mounted) return;
+
+    final sentPrompt = _pendingSentReviewPrompt;
+    if (sentPrompt != null &&
+        ChromeAiRoundTrip.isUnchangedSentPrompt(text, sentPrompt)) {
+      if (silentIfUnchanged) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('アドバイスを読み取れなかった'.tr(lang))));
+      return;
+    }
 
     if (text == null) {
       ScaffoldMessenger.of(
@@ -111,7 +152,10 @@ class _DiaryListPageState extends State<DiaryListPage> {
       return;
     }
 
-    setState(() => _awaitingReviewPaste = false);
+    setState(() {
+      _awaitingReviewPaste = false;
+      _pendingSentReviewPrompt = null;
+    });
     _stopReviewKeepAliveIfOwned();
 
     await DiaryReviewStorage.add(DiaryReview(date: DateTime.now(), text: text));

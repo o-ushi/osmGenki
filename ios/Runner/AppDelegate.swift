@@ -47,6 +47,7 @@ private final class DeviceShakeStreamHandler: NSObject, FlutterStreamHandler {
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   private var captureHandler: SpeechCaptureHandler?
   private var soundPlayer: AVAudioPlayer?
+  private var iCloudSyncChannel: ICloudSyncChannel?
 
   override func application(
     _ application: UIApplication,
@@ -55,8 +56,29 @@ private final class DeviceShakeStreamHandler: NSObject, FlutterStreamHandler {
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
+  override func application(
+    _ application: UIApplication,
+    configurationForConnecting connectingSceneSession: UISceneSession,
+    options: UIScene.ConnectionOptions
+  ) -> UISceneConfiguration {
+    // 一度 SwiftUI.AppSceneDelegate で保存されたシーンは、Info.plist の
+    // SceneDelegate を読まずに復元される。畳んだ外側画面はプロセスが生きたまま黒くなる。
+    // 設定名は毎回逆引き DNS にする。残った "flutter" を状態保存の種別に使うと落ちる。
+    let configuration = UISceneConfiguration(
+      name: SceneConfiguration.name,
+      sessionRole: connectingSceneSession.role
+    )
+    configuration.delegateClass = SceneDelegate.self
+    configuration.storyboard = UIStoryboard(name: "Main", bundle: nil)
+    return configuration
+  }
+
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "ICloudSyncChannel") {
+      iCloudSyncChannel = ICloudSyncChannel(messenger: registrar.messenger())
+    }
 
     let shakeReg = engineBridge.pluginRegistry.registrar(forPlugin: "OsmGenkiDeviceShake")!
     let shakeChannel = FlutterEventChannel(
@@ -146,5 +168,89 @@ private final class DeviceShakeStreamHandler: NSObject, FlutterStreamHandler {
       soundPlayer = player
       player.play()
     } catch {}
+  }
+}
+
+/// iCloud の KVS（日記・診断と設定の同期データ）を Dart から使う出入り口
+/// （osmGradus の ICloudSyncChannel と同じ）。
+/// 同期の判断（変わったか・マージ）は Dart の CloudSyncService で行う。
+final class ICloudSyncChannel: NSObject {
+  static let channelName = "com.osamushikubo.osm_genki/icloud"
+  static let dataKey = "osmGenki-sync-v1"
+  static let timestampKey = "osmGenki-sync-v1-ts"
+  /// KVS の 1 値の上限（Dart 側でも確かめる）。
+  static let maxBytes = 1_000_000
+
+  private let channel: FlutterMethodChannel
+  private let kvStore = NSUbiquitousKeyValueStore.default
+  private var observer: NSObjectProtocol?
+
+  init(messenger: FlutterBinaryMessenger) {
+    channel = FlutterMethodChannel(name: Self.channelName, binaryMessenger: messenger)
+    super.init()
+    channel.setMethodCallHandler { [weak self] call, result in
+      self?.handle(call, result: result)
+    }
+  }
+
+  deinit {
+    if let observer { NotificationCenter.default.removeObserver(observer) }
+  }
+
+  private func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    switch call.method {
+    case "isAvailable":
+      result(FileManager.default.ubiquityIdentityToken != nil)
+
+    case "startObserving":
+      if observer == nil {
+        observer = NotificationCenter.default.addObserver(
+          forName: NSUbiquitousKeyValueStore.didChangeExternallyNotification,
+          object: kvStore,
+          queue: .main
+        ) { [weak self] notification in
+          guard let self else { return }
+          let reason = (notification.userInfo?[NSUbiquitousKeyValueStoreChangeReasonKey] as? NSNumber)?.intValue
+          let keys = notification.userInfo?[NSUbiquitousKeyValueStoreChangedKeysKey] as? [String] ?? []
+          // 初回ダウンロード前の書き込みは iOS が捨て、InitialSyncChange で知らせてくる。
+          // そのときとアカウントの切り替えは、キーに関係なく Dart に取り込み直させる。
+          let resync = reason == NSUbiquitousKeyValueStoreInitialSyncChange
+            || reason == NSUbiquitousKeyValueStoreAccountChange
+          guard resync || keys.contains(Self.dataKey) else { return }
+          self.channel.invokeMethod("externalChange", arguments: nil)
+        }
+      }
+      kvStore.synchronize()
+      result(nil)
+
+    case "read":
+      kvStore.synchronize()
+      result([
+        "data": kvStore.string(forKey: Self.dataKey) as Any,
+        "timestamp": kvStore.double(forKey: Self.timestampKey),
+      ])
+
+    case "write":
+      guard let args = call.arguments as? [String: Any],
+            let data = args["data"] as? String,
+            let timestamp = args["timestamp"] as? Double else {
+        result(FlutterError(code: "badArgs", message: "data / timestamp が必要", details: nil))
+        return
+      }
+      let bytes = data.utf8.count
+      guard bytes < Self.maxBytes else {
+        result(FlutterError(code: "tooLarge", message: "\(bytes) bytes", details: bytes))
+        return
+      }
+      kvStore.set(data, forKey: Self.dataKey)
+      kvStore.set(timestamp, forKey: Self.timestampKey)
+      // synchronize() は「すぐ iCloud へ送る」ではなく、送る準備ができたかの合図。
+      // 実際の送信は iOS が数秒〜数十秒のうちにまとめて行う。
+      kvStore.synchronize()
+      result(nil)
+
+    default:
+      result(FlutterMethodNotImplemented)
+    }
   }
 }
