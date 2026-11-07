@@ -21,11 +21,7 @@ Future<void> main() async {
   // スマホ専用アプリのため、端末サイズによらず縦向きに固定する
   // （iOSはInfo.plist/TARGETED_DEVICE_FAMILY、AndroidはManifestのscreenOrientation/
   // supports-screensでも同様に固定・タブレット除外している。これはその保険）。
-  await SystemChrome.setPreferredOrientations(
-    Platform.isIOS
-        ? [DeviceOrientation.portraitUp]
-        : [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown],
-  );
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   final prefs = await AppPreferences.load();
   appSettings = AppSettings(prefs);
   unawaited(_migrateAndroidDefaultCompletionSound());

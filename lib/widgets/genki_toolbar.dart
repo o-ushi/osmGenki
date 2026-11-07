@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../app_globals.dart';
 
 /// osmWashabeの `_SessionBar` に相当する、常時表示のタブ切り替えツールバー。
 class GenkiToolbar extends StatelessWidget {
