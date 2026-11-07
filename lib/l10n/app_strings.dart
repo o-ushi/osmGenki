@@ -294,7 +294,7 @@ abstract final class AppStrings {
     '音声認識同意_本文_iOS':
         '文字起こしのため、録音した音声データをOSに搭載された音声認識サービス（Apple Inc.のSpeech Recognition）へ渡します。Appleのサーバーで処理される場合があります。同意は設定 → プライバシーからいつでも撤回でき、未同意または撤回後は録音・音声認識を開始しません。Appleの規約・プライバシーポリシーが適用されます。',
     '音声認識同意_本文_Android':
-        '文字起こしのため、録音した音声データを端末のOS音声認識サービスへ渡します。認識に失敗した場合のみ、端末内のVoskモデル（オフライン）で処理し、外部へは送信しません。同意は設定 → プライバシーからいつでも撤回でき、未同意または撤回後は録音・音声認識を開始しません。',
+        '文字起こしのため、録音した音声データを端末のOS音声認識サービスへ渡します。認識に失敗した場合のみ、端末内のオフラインモデルで処理し、外部へは送信しません。同意は設定 → プライバシーからいつでも撤回でき、未同意または撤回後は録音・音声認識を開始しません。',
     '同意しない': '同意しない',
     '同意する': '同意する',
     '同意を撤回': '同意を撤回',
@@ -306,7 +306,7 @@ abstract final class AppStrings {
     'Privacy_音声認識説明_iOS':
         '録音した音声を、OSに搭載された音声認識サービスへ送信します。目的は発話の文字起こしです。初めて利用する前に同意を確認し、同意しない場合も音声認識を使わない機能は利用できます。Appleの規約・プライバシーポリシーが適用されます。',
     'Privacy_音声認識説明_Android':
-        '録音した音声を、OSに搭載された音声認識サービス、もしくはVosk（端末内のオフラインモデル）へ送信します。目的は、発話の文字起こしです。初めて利用する前に同意を確認し、同意しない場合も音声認識を使わない機能は利用できます。',
+        '録音した音声を、OSに搭載された音声認識サービス、もしくは端末内のオフラインモデルで処理します。目的は、発話の文字起こしです。初めて利用する前に同意を確認し、同意しない場合も音声認識を使わない機能は利用できます。',
     'Privacy_設定への案内': '表示言語やシェイクで話すなどの操作設定は、設定画面から変更できます。',
     'Privacy_Google説明':
         '発話解析または日記傾向の診断を実行するたびに、Google LLCへの送信内容と目的を表示して同意を確認します。拒否した場合はクリップボードへのコピーもブラウザ起動も行いません。',
@@ -631,7 +631,7 @@ abstract final class AppStrings {
     '音声認識同意_本文_iOS':
         'To create a transcript, recorded audio is sent to the speech-recognition service built into the OS (Apple\'s Speech Recognition). It may be processed on Apple\'s servers. You can withdraw consent anytime in Settings → Privacy. If you decline or withdraw, recording and speech recognition will not start. Apple\'s terms and privacy policy apply.',
     '音声認識同意_本文_Android':
-        'To create a transcript, recorded audio is sent to the speech-recognition service built into the OS. If recognition fails, it falls back to the on-device Vosk model (offline) and nothing is sent externally. You can withdraw consent anytime in Settings → Privacy. If you decline or withdraw, recording and speech recognition will not start.',
+        'To create a transcript, recorded audio is sent to the speech-recognition service built into the OS. If recognition fails, it falls back to an on-device offline model and nothing is sent externally. You can withdraw consent anytime in Settings → Privacy. If you decline or withdraw, recording and speech recognition will not start.',
     '同意しない': 'Decline',
     '同意する': 'Agree',
     '同意を撤回': 'Withdraw consent',
@@ -644,7 +644,7 @@ abstract final class AppStrings {
     'Privacy_音声認識説明_iOS':
         'Recorded audio is sent to the speech-recognition service built into the OS. The purpose is to create a transcript. Consent is requested before first use; features that do not use speech recognition remain available even if you decline. Apple’s terms and privacy policy apply.',
     'Privacy_音声認識説明_Android':
-        'Recorded audio is sent to the speech-recognition service built into the OS, or to Vosk (an on-device offline model). The purpose is to create a transcript. Consent is requested before first use; features that do not use speech recognition remain available even if you decline.',
+        'Recorded audio is sent to the speech-recognition service built into the OS, or processed by an on-device offline model. The purpose is to create a transcript. Consent is requested before first use; features that do not use speech recognition remain available even if you decline.',
     'Privacy_設定への案内':
         'Display language and shake-to-talk controls are in Settings.',
     'Privacy_Google説明':
@@ -972,7 +972,7 @@ abstract final class AppStrings {
     '音声認識同意_本文_iOS':
         'Để tạo bản ghi lời nói, âm thanh ghi âm được gửi đến dịch vụ nhận dạng giọng nói tích hợp trên hệ điều hành (Speech Recognition của Apple). Có thể được xử lý trên máy chủ của Apple. Bạn có thể rút lại đồng ý bất cứ lúc nào tại Cài đặt → Quyền riêng tư. Nếu từ chối hoặc rút lại, ghi âm và nhận dạng giọng nói sẽ không bắt đầu. Áp dụng điều khoản và chính sách quyền riêng tư của Apple.',
     '音声認識同意_本文_Android':
-        'Để tạo bản ghi lời nói, âm thanh ghi âm được gửi đến dịch vụ nhận dạng giọng nói tích hợp trên hệ điều hành. Nếu nhận dạng thất bại, ứng dụng chuyển sang mô hình Vosk ngoại tuyến trên thiết bị và không gửi gì ra ngoài. Bạn có thể rút lại đồng ý bất cứ lúc nào tại Cài đặt → Quyền riêng tư. Nếu từ chối hoặc rút lại, ghi âm và nhận dạng giọng nói sẽ không bắt đầu.',
+        'Để tạo bản ghi lời nói, âm thanh ghi âm được gửi đến dịch vụ nhận dạng giọng nói tích hợp trên hệ điều hành. Nếu nhận dạng thất bại, ứng dụng chuyển sang mô hình ngoại tuyến trên thiết bị và không gửi gì ra ngoài. Bạn có thể rút lại đồng ý bất cứ lúc nào tại Cài đặt → Quyền riêng tư. Nếu từ chối hoặc rút lại, ghi âm và nhận dạng giọng nói sẽ không bắt đầu.',
     '同意しない': 'Từ chối',
     '同意する': 'Đồng ý',
     '同意を撤回': 'Rút lại đồng ý',
@@ -985,7 +985,7 @@ abstract final class AppStrings {
     'Privacy_音声認識説明_iOS':
         'Âm thanh ghi âm được gửi đến dịch vụ nhận dạng giọng nói tích hợp trên hệ điều hành. Mục đích là tạo bản ghi lời nói. Ứng dụng hỏi sự đồng ý trước lần đầu sử dụng; các tính năng không cần nhận dạng giọng nói vẫn dùng được nếu bạn từ chối. Áp dụng điều khoản và chính sách quyền riêng tư của Apple.',
     'Privacy_音声認識説明_Android':
-        'Âm thanh ghi âm được gửi đến dịch vụ nhận dạng giọng nói tích hợp trên hệ điều hành, hoặc đến Vosk (mô hình ngoại tuyến trên thiết bị). Mục đích là tạo bản ghi lời nói. Ứng dụng hỏi sự đồng ý trước lần đầu sử dụng; các tính năng không cần nhận dạng giọng nói vẫn dùng được nếu bạn từ chối.',
+        'Âm thanh ghi âm được gửi đến dịch vụ nhận dạng giọng nói tích hợp trên hệ điều hành, hoặc được xử lý bằng mô hình ngoại tuyến trên thiết bị. Mục đích là tạo bản ghi lời nói. Ứng dụng hỏi sự đồng ý trước lần đầu sử dụng; các tính năng không cần nhận dạng giọng nói vẫn dùng được nếu bạn từ chối.',
     'Privacy_設定への案内':
         'Ngôn ngữ hiển thị và lắc để nói có thể đổi trong Cài đặt.',
     'Privacy_Google説明':

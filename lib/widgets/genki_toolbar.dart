@@ -82,10 +82,9 @@ class GenkiToolbar extends StatelessWidget {
           message: moreTooltip,
           child: Material(
             key: moreButtonKey,
-            color: appAppearance.subtleFill(scene, 0.08),
-            borderRadius: BorderRadius.circular(10),
+            type: MaterialType.transparency,
             child: InkWell(
-              borderRadius: BorderRadius.circular(10),
+              customBorder: const CircleBorder(),
               onTap: onMore,
               onLongPress: onMoreLongPress,
               child: Padding(
@@ -119,12 +118,9 @@ class _ToolbarIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconColor = selected
-        ? appAppearance.foregroundOn(appAppearance.accentColor)
-        : foreground;
     final iconWidget = Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Icon(icon, color: iconColor, size: 24),
+      child: Icon(icon, color: foreground, size: 24),
     );
 
     return Semantics(
@@ -135,9 +131,10 @@ class _ToolbarIconButton extends StatelessWidget {
         message: tooltip,
         child: Material(
           clipBehavior: Clip.none,
+          // osm日日是好日のタブと同じ。普段は背景に直接置き、選択中だけ薄い地を敷く。
           color: selected
-              ? appAppearance.accentColor
-              : appAppearance.subtleFill(scene, 0.08),
+              ? foreground.withValues(alpha: 0.15)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
           child: InkWell(
             borderRadius: BorderRadius.circular(10),

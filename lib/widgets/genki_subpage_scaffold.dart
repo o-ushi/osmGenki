@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -25,12 +23,11 @@ class GenkiSubpageScaffold extends StatelessWidget {
   final Widget? leading;
 
   /// true のとき左上の戻るボタンを出さない（下/右スワイプで閉じる想定）。
-  /// Androidではシステム戻るとあわせて常に戻るボタンを出す。
   final bool hideLeading;
 
   @override
   Widget build(BuildContext context) {
-    final effectiveHideLeading = Platform.isAndroid ? false : hideLeading;
+    final effectiveHideLeading = hideLeading;
     final palette = AppColors.current;
     final base = SurfaceTheme.subpage(context);
     final themeData = base.copyWith(
@@ -62,9 +59,7 @@ class GenkiSubpageScaffold extends StatelessWidget {
             leading: effectiveHideLeading
                 ? null
                 : (leading ??
-                      (Navigator.canPop(context)
-                          ? const BackButton()
-                          : null)),
+                      (Navigator.canPop(context) ? const BackButton() : null)),
             leadingWidth: effectiveHideLeading ? 0 : null,
             title: Text(title),
             actions: actions,
