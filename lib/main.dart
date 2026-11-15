@@ -15,17 +15,14 @@ import 'services/diary_review_storage.dart';
 import 'services/diary_storage.dart';
 import 'theme/app_theme.dart';
 import 'widgets/phone_frame.dart';
+import 'widgets/rebuild_on_settings.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // スマホ専用アプリのため、端末サイズによらず縦向きに固定する
   // （iOSはInfo.plist/TARGETED_DEVICE_FAMILY、AndroidはManifestのscreenOrientation/
   // supports-screensでも同様に固定・タブレット除外している。これはその保険）。
-  await SystemChrome.setPreferredOrientations(
-    Platform.isIOS
-        ? [DeviceOrientation.portraitUp]
-        : [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown],
-  );
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   final prefs = await AppPreferences.load();
   appSettings = AppSettings(prefs);
   unawaited(_migrateAndroidDefaultCompletionSound());
@@ -75,21 +72,7 @@ class OsmGenkiApp extends StatefulWidget {
   State<OsmGenkiApp> createState() => _OsmGenkiAppState();
 }
 
-class _OsmGenkiAppState extends State<OsmGenkiApp> {
-  @override
-  void initState() {
-    super.initState();
-    appSettings.addListener(_onSettingsChanged);
-  }
-
-  @override
-  void dispose() {
-    appSettings.removeListener(_onSettingsChanged);
-    super.dispose();
-  }
-
-  void _onSettingsChanged() => setState(() {});
-
+class _OsmGenkiAppState extends State<OsmGenkiApp> with RebuildOnAppSettings {
   Locale get _locale => switch (appSettings.language) {
     'en' => const Locale('en'),
     'vi' => const Locale('vi'),

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../app_globals.dart';
 import '../l10n/app_strings.dart';
 import '../widgets/language_flag_button.dart';
+import '../widgets/rebuild_on_settings.dart';
 import '../widgets/startup_bottom_bar.dart';
 import '../widgets/swipe_to_close_wrapper.dart';
 
@@ -30,22 +31,8 @@ class UsageScreen extends StatefulWidget {
   State<UsageScreen> createState() => _UsageScreenState();
 }
 
-class _UsageScreenState extends State<UsageScreen> {
+class _UsageScreenState extends State<UsageScreen> with RebuildOnAppSettings {
   bool _dontShowAgain = false;
-
-  @override
-  void initState() {
-    super.initState();
-    appSettings.addListener(_onSettingsChanged);
-  }
-
-  @override
-  void dispose() {
-    appSettings.removeListener(_onSettingsChanged);
-    super.dispose();
-  }
-
-  void _onSettingsChanged() => setState(() {});
 
   @override
   Widget build(BuildContext context) {

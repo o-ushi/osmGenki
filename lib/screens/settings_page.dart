@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 
-import '../l10n/app_strings.dart';
 import '../app_globals.dart';
+import '../l10n/app_strings.dart';
 import '../services/cloud_sync/cloud_sync_service.dart';
 import '../services/diary_backup_actions.dart';
 import '../services/jsst_calibration_service.dart';
-import '../theme/app_colors.dart';
 import '../services/timer_completion_sound_catalog.dart';
+import '../theme/app_colors.dart';
 import '../widgets/genki_expand_card.dart';
 import '../widgets/genki_subpage_scaffold.dart';
 import '../widgets/language_picker.dart';
+import '../widgets/rebuild_on_settings.dart';
 import '../widgets/swipe_down_to_dismiss.dart';
 import 'speech_recognition_debug_log_page.dart';
 import 'timer_sound_picker_page.dart';
@@ -22,7 +23,7 @@ class SettingsPage extends StatefulWidget {
   State<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsPageState extends State<SettingsPage> with RebuildOnAppSettings {
   final _scrollController = ScrollController();
   int _devTapCount = 0;
 
@@ -30,19 +31,10 @@ class _SettingsPageState extends State<SettingsPage> {
   final Set<String> _open = {};
 
   @override
-  void initState() {
-    super.initState();
-    appSettings.addListener(_onSettingsChanged);
-  }
-
-  @override
   void dispose() {
-    appSettings.removeListener(_onSettingsChanged);
     _scrollController.dispose();
     super.dispose();
   }
-
-  void _onSettingsChanged() => setState(() {});
 
   void _onDevAreaTap() {
     setState(() {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../app_globals.dart';
 import '../l10n/app_strings.dart';
 import '../models/mood_level.dart';
+import '../widgets/rebuild_on_settings.dart';
 import '../widgets/swipe_to_close_wrapper.dart';
 import 'home_page.dart';
 
@@ -21,21 +22,8 @@ class MoodSelectionPage extends StatefulWidget {
   State<MoodSelectionPage> createState() => _MoodSelectionPageState();
 }
 
-class _MoodSelectionPageState extends State<MoodSelectionPage> {
-  @override
-  void initState() {
-    super.initState();
-    appSettings.addListener(_onSettingsChanged);
-  }
-
-  @override
-  void dispose() {
-    appSettings.removeListener(_onSettingsChanged);
-    super.dispose();
-  }
-
-  void _onSettingsChanged() => setState(() {});
-
+class _MoodSelectionPageState extends State<MoodSelectionPage>
+    with RebuildOnAppSettings {
   void _onMoodSelected(BuildContext context, MoodLevel mood) {
     _goToRecordingScreen(context, mood);
   }

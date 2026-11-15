@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-import '../l10n/app_strings.dart';
 import '../app_globals.dart';
+import '../l10n/app_strings.dart';
 import '../theme/app_colors.dart';
 import '../theme/appearance_resolver.dart';
 import '../widgets/genki_expand_card.dart';
 import '../widgets/genki_subpage_scaffold.dart';
+import '../widgets/rebuild_on_settings.dart';
 import '../widgets/swipe_down_to_dismiss.dart';
 import 'privacy_page.dart';
 
@@ -17,7 +18,7 @@ class HelpPage extends StatefulWidget {
   State<HelpPage> createState() => _HelpPageState();
 }
 
-class _HelpPageState extends State<HelpPage> {
+class _HelpPageState extends State<HelpPage> with RebuildOnAppSettings {
   String? _versionLabel;
   final _scrollController = ScrollController();
 
@@ -27,18 +28,14 @@ class _HelpPageState extends State<HelpPage> {
   @override
   void initState() {
     super.initState();
-    appSettings.addListener(_onSettingsChanged);
     _loadVersion();
   }
 
   @override
   void dispose() {
-    appSettings.removeListener(_onSettingsChanged);
     _scrollController.dispose();
     super.dispose();
   }
-
-  void _onSettingsChanged() => setState(() {});
 
   Future<void> _loadVersion() async {
     final info = await PackageInfo.fromPlatform();
