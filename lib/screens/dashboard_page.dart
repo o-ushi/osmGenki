@@ -3,13 +3,14 @@ import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-import '../l10n/app_strings.dart';
 import '../app_globals.dart';
+import '../l10n/app_strings.dart';
 import '../models/appearance_models.dart';
 import '../services/diary_storage.dart';
 import '../theme/app_colors.dart';
 import '../widgets/diary_card.dart';
 import '../widgets/genki_frame_card.dart';
+import '../widgets/rebuild_on_settings.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -42,7 +43,8 @@ class _DailyGenki {
 bool _isSameDay(DateTime a, DateTime b) =>
     a.year == b.year && a.month == b.month && a.day == b.day;
 
-class _DashboardPageState extends State<DashboardPage> {
+class _DashboardPageState extends State<DashboardPage>
+    with RebuildOnAppSettings {
   late Future<List<DiaryEntry>> _entriesFuture;
   DateTime _focusedMonth = DateTime(DateTime.now().year, DateTime.now().month);
   DateTime? _selectedDay;
@@ -56,18 +58,14 @@ class _DashboardPageState extends State<DashboardPage> {
   void initState() {
     super.initState();
     _entriesFuture = DiaryStorage.loadAll();
-    appSettings.addListener(_onSettingsChanged);
     DiaryStorage.changes.addListener(_onDiaryChanged);
   }
 
   @override
   void dispose() {
-    appSettings.removeListener(_onSettingsChanged);
     DiaryStorage.changes.removeListener(_onDiaryChanged);
     super.dispose();
   }
-
-  void _onSettingsChanged() => setState(() {});
 
   /// 会話が終わって日記が保存されたら、表示中でも最新の内容に更新する。
   void _onDiaryChanged() {

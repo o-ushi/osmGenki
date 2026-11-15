@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../l10n/app_strings.dart';
 import '../app_globals.dart';
+import '../l10n/app_strings.dart';
 import '../widgets/language_flag_button.dart';
+import '../widgets/rebuild_on_settings.dart';
 import '../widgets/startup_bottom_bar.dart';
 
 /// インストール直後（および設定で有効なとき）に出す案内画面。
@@ -19,22 +20,9 @@ class StartupScreen extends StatefulWidget {
   State<StartupScreen> createState() => _StartupScreenState();
 }
 
-class _StartupScreenState extends State<StartupScreen> {
+class _StartupScreenState extends State<StartupScreen>
+    with RebuildOnAppSettings {
   bool _dontShowAgain = false;
-
-  @override
-  void initState() {
-    super.initState();
-    appSettings.addListener(_onSettingsChanged);
-  }
-
-  @override
-  void dispose() {
-    appSettings.removeListener(_onSettingsChanged);
-    super.dispose();
-  }
-
-  void _onSettingsChanged() => setState(() {});
 
   @override
   Widget build(BuildContext context) {

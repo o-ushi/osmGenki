@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-import '../l10n/app_strings.dart';
 import '../app_globals.dart';
+import '../l10n/app_strings.dart';
 import '../services/background_audio_keeper.dart';
 import '../services/chrome_ai_prompts.dart';
 import '../services/chrome_ai_round_trip.dart';
@@ -15,6 +15,7 @@ import '../widgets/confirm_delete_dialog.dart';
 import '../widgets/delete_swipe_background.dart';
 import '../widgets/diary_card.dart';
 import '../widgets/diary_review_dialog.dart';
+import '../widgets/rebuild_on_settings.dart';
 import '../widgets/swipe_down_to_dismiss.dart';
 import 'diary_review_list_page.dart';
 
@@ -26,7 +27,7 @@ class DiaryListPage extends StatefulWidget {
 }
 
 class _DiaryListPageState extends State<DiaryListPage>
-    with WidgetsBindingObserver {
+    with WidgetsBindingObserver, RebuildOnAppSettings {
   late Future<List<DiaryEntry>> _entriesFuture;
   late Future<List<DiaryReview>> _reviewsFuture;
 
@@ -48,7 +49,6 @@ class _DiaryListPageState extends State<DiaryListPage>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _reload();
-    appSettings.addListener(_onSettingsChanged);
     DiaryStorage.changes.addListener(_onDiaryChanged);
     DiaryReviewStorage.changes.addListener(_onReviewsChanged);
   }
@@ -56,7 +56,6 @@ class _DiaryListPageState extends State<DiaryListPage>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    appSettings.removeListener(_onSettingsChanged);
     DiaryStorage.changes.removeListener(_onDiaryChanged);
     DiaryReviewStorage.changes.removeListener(_onReviewsChanged);
     _stopReviewKeepAliveIfOwned();
@@ -93,8 +92,6 @@ class _DiaryListPageState extends State<DiaryListPage>
     _entriesFuture = DiaryStorage.loadAll();
     _reviewsFuture = DiaryReviewStorage.loadAll();
   }
-
-  void _onSettingsChanged() => setState(() {});
 
   void _onDiaryChanged() => setState(_reload);
 
