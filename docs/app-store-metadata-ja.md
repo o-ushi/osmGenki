@@ -1,8 +1,9 @@
-# osmGenki？ App Store Connect 申請用文案（日本語・v1.1.2）
+# osmGenki？ App Store Connect 申請用文案（ベトナム語・v1.1.2）
 
 最終更新：2026年11月15日
 
 App Store Connect の各フィールドにそのまま貼り付けて使えます。文字数は提出前に再確認してください。
+ストアの各欄（サブタイトル・プロモーション・概要・キーワード・最新情報）はベトナム語、審査員へのメモは日本語です。
 
 ---
 
@@ -11,10 +12,10 @@ App Store Connect の各フィールドにそのまま貼り付けて使えま�
 アプリ名の下に表示され、検索の対象にもなります。
 
 ```
-話すだけで残る、元気度のボイス日記
+Chỉ cần nói, nhật ký tự thành
 ```
 
-（17文字）
+（29文字）
 
 ---
 
@@ -23,78 +24,78 @@ App Store Connect の各フィールドにそのまま貼り付けて使えま�
 審査通過後も、新バージョンを出さずに更新できます。
 
 ```
-今日のことを、声で話すだけ。AIが文章の日記にまとめ、元気度と日本語の会話力を10段階で付けます。ダッシュボードとカレンダーで、気持ちの波をふり返れます。
+Chỉ cần nói về ngày hôm nay. AI viết thành nhật ký, chấm chỉ số Genki và khả năng hội thoại tiếng Nhật theo thang 10. Xem lại cảm xúc qua biểu đồ và lịch.
 ```
 
-（77文字）
+（154文字）
 
 ---
 
 ## 概要（説明・4,000文字以内）
 
 ```
-osmGenki？は、話すだけで残せるボイス日記アプリです。書くのがおっくうな日も、マイクに向かって今日のことを話せば、それが日記になります。
+osmGenki？ là ứng dụng nhật ký bằng giọng nói. Những ngày ngại viết, chỉ cần nói với micro về ngày hôm nay, đó sẽ trở thành nhật ký.
 
-■ 話して残す
-・録音の時間を選んでマイクをタップ（∞ の「フリー」なら、もう一度タップで止めます）
-・話し足りないときは、続けて話して足せます。最初からやり直すこともできます
-・iPhone を振ると、すぐに「話す」画面へ移れます
+■ Nói để lưu lại
+・Chọn thời lượng ghi âm rồi chạm micro (với “Tự do” ∞, chạm lần nữa để dừng)
+・Chưa nói hết thì nói tiếp để thêm vào. Cũng có thể làm lại từ đầu
+・Lắc iPhone để chuyển ngay đến màn hình “Nói”
 
-■ AI が日記にまとめる
-・話した内容を Google の AI に送ると、文章の日記と、元気度・日本語の会話力の評価が返ってきます
-・回答を貼り付ければ、その日のボイス日記として保存されます
+■ AI sắp xếp thành nhật ký
+・Gửi nội dung đã nói cho AI của Google, bạn sẽ nhận được nhật ký bằng chữ cùng đánh giá chỉ số Genki và khả năng hội thoại tiếng Nhật
+・Dán câu trả lời để lưu thành nhật ký giọng nói của ngày hôm đó
 
-■ ふり返る
-・振り返りダッシュボードで、元気度と会話力の移り変わりをグラフで確かめられます。ピンチで拡大、ドラッグで移動
-・カレンダーの日付をタップすると、その日の記録が開きます
-・ボイス日記の一覧で、これまでの日記を読み返せます。点数を長押しすると詳しい評価
-・日記の傾向を AI に診断してもらい、あとから見返せます
+■ Nhìn lại
+・Bảng điều khiển hiển thị biểu đồ thay đổi của chỉ số Genki và khả năng hội thoại. Chụm để phóng to, kéo để di chuyển
+・Chạm vào một ngày trên lịch để mở ghi chép của ngày đó
+・Đọc lại nhật ký trong danh sách. Nhấn giữ điểm số để xem đánh giá chi tiết
+・Nhờ AI chẩn đoán xu hướng nhật ký và xem lại sau
 
-■ 書き出し・取り込み・同期
-・日記の書き出しと取り込みに対応（同じ記録は重複しません）
-・iCloud で同じ Apple ID の iPhone 間を同期できます（任意）
+■ Xuất, nhập, đồng bộ
+・Hỗ trợ xuất và nhập nhật ký (ghi chép trùng sẽ không bị nhân đôi)
+・Đồng bộ giữa các iPhone cùng Apple ID qua iCloud (tùy chọn)
 
-■ 3言語対応
+■ Hỗ trợ 3 ngôn ngữ
 日本語・English・Tiếng Việt
 
-■ プライバシー
-・ユーザー登録不要。広告・アクセス解析・トラッキングなし
-・日記は端末内に保存し、開発者のサーバーへは送りません
-・録音は、初めて使う前に同意を確かめてから、端末の音声認識で文字にします。同意は設定からいつでも取り消せます
-・AI へ送るときは毎回、送る内容を確かめてから、外部ブラウザ経由で Google 検索（AI モード）へ文字を送ります
+■ Quyền riêng tư
+・Không cần đăng ký tài khoản. Không quảng cáo, không phân tích truy cập, không theo dõi
+・Nhật ký được lưu trên máy, không gửi về máy chủ của nhà phát triển
+・Trước lần ghi âm đầu tiên, ứng dụng hỏi sự đồng ý rồi mới chuyển giọng nói thành văn bản bằng nhận dạng giọng nói của máy. Có thể rút lại đồng ý bất cứ lúc nào trong Cài đặt
+・Mỗi lần gửi cho AI, bạn xác nhận nội dung trước, rồi văn bản được gửi qua trình duyệt bên ngoài đến Google Tìm kiếm (chế độ AI)
 
-■ 対応端末
-・iPhone（縦画面のみ）
+■ Thiết bị hỗ trợ
+・iPhone (chỉ màn hình dọc)
 
-元気な日も、そうでない日も。声に出したその日のことが、あとで自分を励ましてくれます。
+Ngày vui hay ngày chưa vui, những điều bạn nói ra hôm nay sẽ tiếp thêm sức cho chính bạn sau này.
 ```
 
-（789文字）
+（1662文字）
 
 ---
 
 ## キーワード（100文字以内）
 
-カンマ区切り。スペースは入れない（文字数節約のため）。アプリ名に含まれる語は入れない。
+カンマ区切り。カンマの後ろにスペースは入れない（文字数節約のため）。アプリ名に含まれる語は入れない。
 
 ```
-日記,ボイス日記,音声日記,元気,気分,メンタル,セルフケア,振り返り,日本語,会話,スピーキング,音声入力,録音,ライフログ
+nhật ký,ghi âm,giọng nói,tâm trạng,tinh thần,tự chăm sóc,tiếng Nhật,hội thoại,luyện nói,nhìn lại
 ```
 
-（63文字）
+（96文字）
 
 ---
 
 ## このバージョンの最新情報（v1.1.2）
 
 ```
-・画面を閉じる操作と、上部のボタンの並びを見直しました。一覧のいちばん上から下へスワイプして閉じられます
-・iPhone を縦向きの画面に固定しました
-・音声認識についての説明を、より分かりやすくしました
-・内部を整理し、動作を安定させました
+・Cải thiện cách đóng màn hình và cách sắp xếp các nút phía trên. Vuốt xuống từ đầu danh sách để đóng
+・Cố định màn hình iPhone theo chiều dọc
+・Phần giải thích về nhận dạng giọng nói được viết lại dễ hiểu hơn
+・Sắp xếp lại bên trong ứng dụng để hoạt động ổn định hơn
 ```
 
-（118文字）
+（260文字）
 
 ---
 
